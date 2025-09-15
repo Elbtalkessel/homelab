@@ -1,0 +1,21 @@
+---
+name: glances
+
+configs:
+  risus.pwd:
+    content: |
+      2c998ec1699e4c549f70a72603ccaf15$$aaeab1673f24029d752eb86f5d1a36bee88db82d8daa1a29d342a90ec0a220762229802b6bdaea569649976a3be6b71cf511b94895bdd000d5c75463a02d7df329b16c47e57ffead337ad943d51c31d6956aef760d4e01f045d1d36c7b93502a729faece8a6aec69c2de2cfd4d35e81aa369550b1e450c1eb5bd8256ab662d49
+
+services:
+  glances:
+    image: nicolargo/glances:latest
+    container_name: glances
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - "GLANCES_OPT=-w -p 61209 -u risus"
+    configs:
+      - source: risus.pwd
+        target: /root/.config/glances/risus.pwd
+    pid: host
+    network_mode: host

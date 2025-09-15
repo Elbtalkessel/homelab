@@ -1,0 +1,32 @@
+---
+name: database
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: unless-stopped
+    env_file: ./postgres.env
+    volumes:
+      - /share/Docker/PostgreSQL/latest:/var/lib/postgresql/data
+    shm_size: 128mb
+    networks:
+      - postgres
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: unless-stopped
+    environment:
+      - VIRTUAL_HOST=adminer.s1.home.arpa
+    volumes:
+      - /share/Docker/Adminer/var/www/html/adminer.css:/var/www/html/adminer.css
+    networks:
+      - public
+      - postgres
+
+networks:
+  public:
+    external: true
+  postgres:
+    external: true

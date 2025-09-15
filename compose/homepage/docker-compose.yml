@@ -1,0 +1,28 @@
+---
+name: homepage
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config:/app/config
+      - ./images:/app/public/images
+    environment:
+      - VIRTUAL_HOST=s1.home.arpa
+      - VIRTUAL_PORT=3000
+      - HOMEPAGE_ALLOWED_HOSTS=s1.home.arpa
+      - HOMEPAGE_VAR_ARR_BASE_URL=s1.home.arpa
+      - HOMEPAGE_VAR_TLD=s1.home.arpa
+    # have to use stack.env name because of retarted portainer
+    env_file: ./homepage.env
+    networks:
+      - public
+    extra_hosts:
+      # hostmachine, required to connect to plex
+      - host:172.17.0.1
+
+networks:
+  public:
+    external: true

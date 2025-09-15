@@ -1,0 +1,22 @@
+---
+name: vaultwarden
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vault
+    restart: unless-stopped
+    environment:
+      - DOMAIN=https://vault.s1.home.arpa
+      - VIRTUAL_HOST=vault.s1.home.arpa
+      - VIRTUAL_PORT=80
+    env_file: ./vaultwarden.env
+    user: 1000:100
+    volumes:
+      - /share/Docker/Vault/:/data/
+    networks:
+      - "public"
+
+networks:
+  public:
+    external: true

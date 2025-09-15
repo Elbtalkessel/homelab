@@ -1,0 +1,19 @@
+---
+name: filebot
+services:
+  filebot:
+    image: rednoah/filebot:node
+    container_name: filebot
+    restart: unless-stopped
+    volumes:
+      - /share/Docker/Filebot:/data
+      - /share/Video:/share/Video
+    environment:
+      - VIRTUAL_HOST=filebot.s1.home.arpa
+      - VIRTUAL_PORT=5452
+    env_file: ./filebot.env
+    networks:
+      - "public"
+networks:
+  public:
+    external: true

@@ -1,0 +1,19 @@
+---
+name: dnsmasq
+services:
+  dnsmasq:
+    image: strm/dnsmasq
+    container_name: dnsmasq
+    restart: always
+    volumes:
+      - ./base.conf:/etc/dnsmasq.conf
+    ports:
+      - "53:53/udp"
+      - "53:53"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - public
+networks:
+  public:
+    external: true
