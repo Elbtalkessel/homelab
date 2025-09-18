@@ -1,0 +1,26 @@
+http:
+  services:
+    nas:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: http://172.17.0.1:8000
+    plex:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: http://172.17.0.1:32400
+
+  routers:
+    nas:
+      rule: "Host(`nas.s1.home.arpa`)"
+      entryPoints:
+        - websecure
+      service: nas
+      tls: true
+    plex:
+      rule: "Host(`plex.s1.home.arpa`)"
+      entryPoints:
+        - websecure
+      service: plex
+      tls: true

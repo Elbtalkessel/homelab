@@ -1,0 +1,59 @@
+# Adds CORS headers, so that materialious can be used as a proxy for invidious and odious.
+http:
+  middlewares:
+    materialious:
+      headers:
+        accessControlAllowCredentials: true
+        accessControlAllowOriginList: "https://yt.s1.home.arpa"
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+          - HEAD
+          - PATCH
+          - PUT
+          - DELETE
+        accessControlAllowHeaders:
+          - User-Agent
+          - Authorization
+          - Content-Type
+
+  services:
+    invidious:
+      loadBalancer:
+        servers:
+          - url: http://invidious:3000
+    odious:
+      loadBalancer:
+        servers:
+          - url: http://odious:8282
+    materialious:
+      loadBalancer:
+        servers:
+          - url: http://materialious:80
+
+  routers:
+    invidious:
+      rule: "Host(`invidious.s1.home.arpa`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - materialious@file
+      service: invidious
+      tls: true
+    odious:
+      rule: "Host(`odious.s1.home.arpa`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - materialious@file
+      tls: true
+      service: invidious
+    materialious:
+      rule: "Host(`yt.s1.home.arpa`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - materialious@file
+      service: materialious
+      tls: true

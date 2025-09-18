@@ -1,0 +1,97 @@
+{{ $proxies := list
+	(dict "Service" "calibre"
+	      "Blocking" true
+        "Port" 8083)
+	(dict "Service" "dockge"
+	      "Alias" "docker"
+        "Port" 5001)
+	(dict "Service" "filebot"
+        "Port" 5452)
+	(dict "Service" "gitea"
+        "Port" 3000)
+	(dict "Service" "immich"
+	      "Alias" "photos"
+        "Port" 2283
+        "Names" "immich,immich-ml,immich-redis")
+	(dict "Service" "adminer"
+        "Port" 8080)
+	(dict "Service" "stash"
+        "Port" 9999)
+	(dict "Service" "vaultwarden"
+        "Port" 80
+        "Keepalive" true
+        "Alias" "vault")
+	(dict "Service" "lidarr"
+	      "Blocking" true
+        "Port" 8686)
+	(dict "Service" "overseerr"
+	      "Blocking" true
+        "Port" 5055)
+	(dict "Service" "prowlarr"
+	      "Blocking" true
+        "Port" 9696)
+	(dict "Service" "radarr"
+	      "Blocking" true
+        "Port" 7878)
+	(dict "Service" "sonarr"
+	      "Blocking" true
+        "Port" 8989)
+	(dict "Service" "torrent"
+	      "Keepalive" true
+        "Port" 8080)
+  (dict "Service" "glances"
+        "HostNetwork" true
+        "Port" 61209)
+}}
+
+http:
+  middlewares:
+  {{range $proxies}}
+  {{if not .Keepalive }}
+    {{.Service}}-sablier:
+      plugin:
+        sablier:
+          {{if .Blocking}}
+          blocking:
+            defaultTimeout: 10s
+          {{else}}
+          dynamic:
+            displayName: {{.Service}}
+            refreshFrequency: 5s
+            showDetails: true
+            theme: shuffle
+          {{end}}
+          sablierUrl: http://sablier:10000
+          sessionDuration: 10m
+          names: {{or .Names .Service}}
+  {{end}}
+  {{end}}
+
+  services:
+  {{range $proxies}}
+    {{.Service}}:
+      loadBalancer:
+        {{if .HostNetwork}}
+        passHostHeader: true
+        {{end}}
+        servers:
+          {{if .HostNetwork}}
+          - url: http://172.17.0.1:{{.Port}}
+          {{else}}
+          - url: http://{{.Service}}:{{.Port}}
+          {{end}}
+  {{end}}
+
+  routers:
+  {{range $proxies}}
+    {{.Service}}:
+      rule: "Host(`{{or .Alias .Service}}.s1.home.arpa`)"
+      entryPoints:
+        - websecure
+      {{ if not .Keepalive }}
+      middlewares:
+        - {{.Service}}-sablier@file
+      {{ end }}
+      service: {{.Service}}
+      tls: true
+  {{end}}

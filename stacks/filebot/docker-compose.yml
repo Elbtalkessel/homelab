@@ -1,0 +1,15 @@
+name: filebot
+services:
+  filebot:
+    image: rednoah/filebot:node
+    container_name: filebot
+    restart: unless-stopped
+    volumes:
+      - /share/Docker/Filebot:/data
+      - /share/Video:/share/Video
+    env_file: ./filebot.env
+    networks:
+      - public
+networks:
+  public:
+    external: true

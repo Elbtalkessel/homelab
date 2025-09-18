@@ -1,19 +1,16 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 
 {
   dotenv.enable = true;
   env = {
     DOCKER_HOST = "ssh://${config.env.SERVER}";
     CAROOT = "${config.env.DEVENV_ROOT}/caroot";
+    STACKS_DIR = "/opt/stacks";
   };
-
-  packages = with pkgs; [
-    mkcert
-  ];
 
   scripts = {
     sync.exec = ''
-      rsync -Parvz compose ${config.env.SERVER}:~/
+      rsync -Parvz compose/ ${config.env.SERVER}:${config.env.STACKS_DIR}/
     '';
 
     dc.exec = ''

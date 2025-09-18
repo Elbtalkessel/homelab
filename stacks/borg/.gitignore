@@ -1,0 +1,7 @@
+data/.config
+data/.ssh
+data/.cache
+data/logs
+data/repository
+data/ssh_host
+data/tmp
