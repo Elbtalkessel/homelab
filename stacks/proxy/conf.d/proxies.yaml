@@ -1,40 +1,44 @@
 {{ $proxies := list
 	(dict "Service" "calibre"
-	      "Blocking" true
+	      "SessionDuration" "30m"
         "Port" 8083)
 	(dict "Service" "dockge"
 	      "Alias" "docker"
+	      "SessionDuration" "30m"
         "Port" 5001)
 	(dict "Service" "filebot"
         "Port" 5452)
 	(dict "Service" "gitea"
+	      "SessionDuration" "1h"
         "Port" 3000)
 	(dict "Service" "immich"
 	      "Alias" "photos"
         "Port" 2283
+	      "SessionDuration" "3h"
         "Names" "immich,immich-ml,immich-redis")
 	(dict "Service" "adminer"
         "Port" 8080)
 	(dict "Service" "stash"
+	      "Keepalive" true
         "Port" 9999)
 	(dict "Service" "vaultwarden"
         "Port" 80
         "Keepalive" true
         "Alias" "vault")
 	(dict "Service" "lidarr"
-	      "Blocking" true
+	      "Keepalive" true
         "Port" 8686)
 	(dict "Service" "overseerr"
-	      "Blocking" true
+	      "SessionDuration" "1h"
         "Port" 5055)
 	(dict "Service" "prowlarr"
-	      "Blocking" true
+	      "Keepalive" true
         "Port" 9696)
 	(dict "Service" "radarr"
-	      "Blocking" true
+	      "Keepalive" true
         "Port" 7878)
 	(dict "Service" "sonarr"
-	      "Blocking" true
+	      "Keepalive" true
         "Port" 8989)
 	(dict "Service" "torrent"
 	      "Keepalive" true
@@ -42,6 +46,13 @@
   (dict "Service" "glances"
         "HostNetwork" true
         "Port" 61209)
+  (dict "Service" "invidious"
+        "Alias" "yt"
+        "Port" 3000
+        "Keepalive" true)
+  (dict "Service" "notifiarr"
+        "Port" 5454
+        "Keepalive" true)
 }}
 
 http:
@@ -62,7 +73,7 @@ http:
             theme: shuffle
           {{end}}
           sablierUrl: http://sablier:10000
-          sessionDuration: 10m
+          sessionDuration: {{or .SessionDuration "10m"}}
           names: {{or .Names .Service}}
   {{end}}
   {{end}}
@@ -85,7 +96,8 @@ http:
   routers:
   {{range $proxies}}
     {{.Service}}:
-      rule: "Host(`{{or .Alias .Service}}.s1.home.arpa`)"
+      {{$domain := or .Alias .Service}}
+      rule: "Host(`{{$domain}}.s1.home.arpa`) || Host(`{{$domain}}.s2.home.arpa`)"
       entryPoints:
         - websecure
       {{ if not .Keepalive }}

@@ -1,4 +1,3 @@
----
 name: invidious
 services:
   invidious:
@@ -9,53 +8,69 @@ services:
       # Please read the following file for a comprehensive list of all available
       # configuration options and their associated syntax:
       # https://github.com/iv-org/invidious/blob/master/config/config.example.yml
-      INVIDIOUS_CONFIG: |
+      INVIDIOUS_CONFIG: >
         db:
           dbname: invidious
           user: kemal
           password: kemal
-          host: invidious-db
+          host: unforgiving
           port: 5432
         check_tables: true
+
         invidious_companion:
+
         # URL used for the internal communication between invidious and invidious companion
+
         # There is no need to change that except if Invidious companion does not run on the same docker compose file.
           - private_url: "http://odious:8282/companion"
         # IT is NOT recommended to use the same key as HMAC KEY. Generate a new key!
+
         # Use the key generated in the 2nd step
+
         invidious_companion_key: "ohngu1Xifahchiel"
+
         port: 3000
+
         external_port: 443
-        domain: invidious.s1.home.arpa
+
+        domain: yt.s1.home.arpa
+
         https_only: true
+
         # statistics_enabled: false
+
         # Use the key generated in the 2nd step
+
         hmac_key: "ACh4Raet1hah0vuN"
+
         # Features
+
         captcha_enabled: false
+
         admins: ["risus"]
+
         enable_user_notifications: false
     healthcheck:
-      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/api/v1/trending || exit 1
+      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/api/v1/trending || exit
+        1
       interval: 30s
       timeout: 5s
       retries: 2
     logging:
       options:
-        max-size: "1G"
+        max-size: 1G
         max-file: "4"
     depends_on:
-      - invidious-db
+      - unforgiving
     networks:
       - public
       - invidious
-
   odious:
     image: quay.io/invidious/invidious-companion:latest
     container_name: odious
     environment:
-    # Use the key generated in the 2nd step
-       - SERVER_SECRET_KEY=ohngu1Xifahchiel
+      # Use the key generated in the 2nd step
+      - SERVER_SECRET_KEY=ohngu1Xifahchiel
     restart: unless-stopped
     # Uncomment only if you have configured "public_url" for Invidious companion
     # Or if you want to use Invidious companion as an API in your program.
@@ -64,7 +79,7 @@ services:
     #  - "127.0.0.1:8282:8282"
     logging:
       options:
-        max-size: "1G"
+        max-size: 1G
         max-file: "4"
     cap_drop:
       - ALL
@@ -76,11 +91,9 @@ services:
       - no-new-privileges:true
     networks:
       - invidious
-      - public
-
-  invidious-db:
+  unforgiving:
     image: docker.io/library/postgres:14
-    container_name: invidious-db
+    container_name: unforgiving
     restart: unless-stopped
     volumes:
       - postgresdata:/var/lib/postgresql/data
@@ -91,48 +104,15 @@ services:
       POSTGRES_USER: kemal
       POSTGRES_PASSWORD: kemal
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test:
+        - CMD-SHELL
+        - pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
     networks:
       - invidious
-
-  materialious:
-    image: wardpearce/materialious:latest
-    container_name: materialious
-    restart: unless-stopped
-    #ports:
-    #  - 3001:80
-    environment:
-      # No trailing backslashes!
-      # URL to your proxied Invidious instance
-      VITE_DEFAULT_INVIDIOUS_INSTANCE: "https://invidious.s1.home.arpa"
-
-      # URL to your proxied Companion instance
-      VITE_DEFAULT_COMPANION_INSTANCE: "https://odious.s1.home.arpa"
-
-      # URL TO RYD
-      # Leave blank to disable completely.
-      VITE_DEFAULT_RETURNYTDISLIKES_INSTANCE: "https://returnyoutubedislikeapi.com"
-
-      # URL to Sponsorblock
-      # Leave blank to completely disable sponsorblock.
-      VITE_DEFAULT_SPONSERBLOCK_INSTANCE: "https://sponsor.ajay.app"
-
-      # URL to DeArrow
-      VITE_DEFAULT_DEARROW_INSTANCE: "https://sponsor.ajay.app"
-
-      # URL to DeArrow thumbnail instance
-      VITE_DEFAULT_DEARROW_THUMBNAIL_INSTANCE: "https://dearrow-thumb.ajay.app"
-
-      # Look at "Overwriting Materialious defaults" for all the accepted values.
-      VITE_DEFAULT_SETTINGS: '{"themeColor": "#2596be","region": "US"}'
-    networks:
-      - public
-
 volumes:
-  postgresdata:
-  companioncache:
-
+  postgresdata: null
+  companioncache: null
 networks:
+  invidious: null
   public:
     external: true
-  invidious:

@@ -2,41 +2,23 @@
 
 {
   dotenv.enable = true;
-  env = {
-    DOCKER_HOST = "ssh://${config.env.SERVER}";
-    CAROOT = "${config.env.DEVENV_ROOT}/caroot";
-    STACKS_DIR = "/opt/stacks";
-  };
 
   scripts = {
-    sync.exec = ''
-      rsync -Parvz compose/ ${config.env.SERVER}:${config.env.STACKS_DIR}/
+    # Syncs local stacks directory with remote.
+    syncup.exec = ''
+      rsync -Parvz bin coreos stacks ${config.env.SSH_USER}@${config.env.SSH_HOST}:${config.env.REMOTE_STACKS_DIR}/
     '';
 
-    dc.exec = ''
-      group=$1
-      if [ -z $group ]; then
-        echo "Usage:"
-        printf "  dc <group> <docker command> [service]\n"
-        printf "  Where the <group> is a directory name and the compose/\n"
-        printf "Example:\n"
-        printf "  dc servarr logs -f radarr\n"
-        exit 0
-      fi
-      shift
-
-      rdir="compose/$group"
-      compose=$(ls $rdir | grep docker-compose)
-      if [ $? -ne 0 ]; then
-        echo "A docker-compose file is not found in $rdir group."
-        exit 1
-      fi
-
-      docker compose -f $rdir/$compose $@
+    # Pulls stacks directory from server (only files present locally).
+    syncdown.exec = ''
+      rsync --existing -Parvz ${config.env.SSH_USER}@${config.env.SSH_HOST}:${config.env.REMOTE_STACKS_DIR}/ .
     '';
+  };
 
-    status.exec = ''
-      docker ps --format 'table {{.Names|printf "%-20.20s"}} {{.Status}}'
-    '';
+  git-hooks.hooks.syncup = {
+    enable = true;
+    name = "Sending changes to remote host";
+    entry = "syncup";
+    pass_filenames = false;
   };
 }

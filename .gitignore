@@ -12,3 +12,5 @@ devenv.local.nix
 *.env
 *.pem
 *.key
+*.ign
+*.iso

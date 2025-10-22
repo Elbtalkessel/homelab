@@ -23,7 +23,6 @@ entryPoints:
           scheme: https
   websecure:
     address: ":443"
-    # asDefault is not a direct config option, default is usually the first declared entryPoint
 
 experimental:
   fastProxy: {}
