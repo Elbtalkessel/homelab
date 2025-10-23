@@ -24,6 +24,9 @@ entryPoints:
           scheme: https
   websecure:
     address: ":443"
+    http:
+      tls:
+        certResolver: stepca
 
 experimental:
   fastProxy: {}
@@ -39,4 +42,4 @@ certificatesResolvers:
       email: "pieceof@duck.com"
       certificatesDuration: 2160
       httpChallenge:
-        entryPoint: http
+        entryPoint: web
