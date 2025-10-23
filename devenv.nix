@@ -10,12 +10,12 @@
   scripts = {
     # Syncs local stacks directory with remote.
     syncup.exec = ''
-      rsync -Parvz bin coreos stacks ${config.env.SSH_USER}@${config.env.SSH_HOST}:${config.env.REMOTE_STACKS_DIR}/
+      rsync -Parvz bin coreos stacks ${config.env.SSH_USER}@${config.env.SSH_HOST}:${config.env.REMOTE_DIR}/
     '';
 
     # Pulls stacks directory from server (only files present locally).
     syncdown.exec = ''
-      rsync --existing -Parvz ${config.env.SSH_USER}@${config.env.SSH_HOST}:${config.env.REMOTE_STACKS_DIR}/ .
+      rsync --existing -Parvz ${config.env.SSH_USER}@${config.env.SSH_HOST}:${config.env.REMOTE_DIR}/ .
     '';
 
     ignite.exec = ''

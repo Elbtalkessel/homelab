@@ -1,6 +1,0 @@
-tls:
-  certificates:
-    - certFile: /certs/s1.home.arpa.crt
-      keyFile: /certs/s1.home.arpa.key
-    - certFile: /certs/s2.home.arpa.crt
-      keyFile: /certs/s2.home.arpa.key

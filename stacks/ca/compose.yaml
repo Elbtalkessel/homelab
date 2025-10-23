@@ -1,0 +1,25 @@
+---
+name: ca
+
+services:
+  step-ca:
+    container_name: step-ca
+    image: smallstep/step-ca
+    environment:
+      - DOCKER_STEPCA_INIT_NAME=Homelab
+      - DOCKER_STEPCA_INIT_DNS_NAMES=localhost
+    env_file: ./.env
+    networks:
+      - public
+    volumes:
+      - step-ca:/home/step
+      - certs:/home/step/certs
+
+networks:
+  public:
+    external: true
+
+volumes:
+  step-ca:
+  certs:
+    external: true
