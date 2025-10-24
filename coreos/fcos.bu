@@ -39,7 +39,7 @@ storage:
       contents:
         inline: |
           [WebService]
-          Origins = cockpit.x.home.arpa
+          Origins = https://cockpit.x.home.arpa wss://cockpit.x.home.arpa
           ProtocolHeader = X-Forwarded-Proto
           ForwardedForHeader = X-Forwarded-For
           AllowUnencrypted = true
