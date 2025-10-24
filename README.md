@@ -1,62 +1,137 @@
-# Homelab Infra
+# Homelab Infrastructure 🚀
 
-- [stacks](./stacks) docker / podman compose files
-- [bin](./bin) helper scripts
-- [coreos](./coreos) coreos related
+## Table of Contents 📚
 
-## Setting up
+- [Directory Structure 📁](#directory-structure)
+- [Post CoreOS Installation 🛠️](#post-coreos-installation)
+- [Preparing and Sending Configuration Files 📤](#preparing-and-sending-configuration-files)
+  - [Syncing Configurations to the Server 🔗](#syncing-configurations-to-the-server)
+- [CoreOS Server Configuration 🖥️](#coreos-server-configuration)
+  - [Enable Lingering for Rootless Containers 👤](#enable-lingering-for-rootless-containers)
+  - [Configure Docker CLI to use Podman 🐳](#configure-docker-cli-to-use-podman)
+- [Certificate Authority with step-ca 🔒](#certificate-authority-with-step-ca)
+  - [Network Setup and Volumes 🌐](#network-setup-and-volumes)
+  - [Step-ca Initialization and Password 🗝️](#step-ca-initialization-and-password)
+  - [Managing step-ca on the Server 🎛️](#managing-step-ca-on-the-server)
+  - [Copy Root and Intermediate CA Certificates 📑](#copy-root-and-intermediate-ca-certificates)
+- [Why Use the ca.x.home.arpa Container Name? ❓](#why-use-the-caxhomearpa-container-name)
+- [Installing Certificates in Your Trust Store 🏢](#installing-certificates-in-your-trust-store)
+  - [NixOS Example 🐧](#nixos-example)
+- [TODO: CoreOS Butane Definition 📝](#todo-coreos-butane-definition)
 
-Before doing it, upload ssh key to a host where homelab is running.
+## Directory Structure 📁
 
-Create .env file:
+- **stacks/** — Docker/Podman compose files
+- **bin/** — Helper scripts
+- **coreos/** — CoreOS configurations
+
+## Post CoreOS Installation 🛠️
+
+- Configure your DNS to resolve to the CoreOS server IP.
+- Traefik refers to your server as `x.home.arpa`.
+
+## Preparing and Sending Configuration Files 📤
+
+Create a `.env` with your settings:
 
 ```env
-SSH_HOST=127.0.0.1
+SSH_HOST=x.home.arpa
 SSH_USER=user
 REMOTE_DIR=/var/home/user/homelab
 ```
 
-Note: `devenv.nix` defines the `syncup` hook which will push `bin`, `coreos` and `stacks` directory to the
-remote host into `REMOTE_DIR`. You can use `syncup` script directly.
+### Syncing Configurations to the Server 🔗
 
-### Certificate Authority
-
-Project uses _step-ca_ as certificate authority. In turn traefik will use it to issue certificates to services.
-
-Both traefik and step-ca container must be on the same network, to simplify we'll reuse the same network name
-for all our services connected to traefik:
+Use the `syncup` hook (defined in `devenv.nix`) to push `bin/`, `coreos/`, `stacks/` to your server:
 
 ```sh
-podman network create public
-podman volume create certs
+syncup
 ```
 
-Next we need a password for our root certificate.
-Unfortunatelly podman doesn't supports secrets with custom targets (not sure if it supports it at all tho)
+## CoreOS Server Configuration 🖥️
 
-Use your preferred method to create a random string and set `DOCKER_STEPCA_INIT_PASSWORD` in `stacks/ca/.env`
+### Enable Lingering for Rootless Containers 👤
 
-Note: without the password you won't be able to issue or renew certificates.
-
-Run `syncup` to send changed to remote host, ssh into it and start step-ca service.
-
-On the remote host in the ca stacks directory run:
+Keep containers running independently:
 
 ```sh
-podman-compose exec step-ca step ca provisioner add acme --type=ACME
-podman cp step-ca:/home/step/certs/root_ca.crt .
-podman-compose restart
+ssh x.home.arpa
+loginctl enable-linger
 ```
 
-It will add ACMER provisioner we'll need later and copy root certificate on host.
-The root certificate will be used to sign other certificates.
+_Or use systemd user services._
 
-Read more [here](https://www.baeldung.com/linux/ca-certificate-management).
+### Configure Docker CLI to use Podman 🐳
 
-On NixOS you can add this cert to trust store like this:
+Set Docker CLI to use Podman for compatibility:
+
+```sh
+mkdir -p ~/.bashrc.d
+echo "export DOCKER_HOST=unix:///run/user/$UID/podman/podman.sock" > ~/.bashrc.d/environment
+```
+
+## Certificate Authority with step-ca 🔒
+
+step-ca issues TLS certificates for homelab services managed by Traefik.
+
+Create a shared network and persistent cert storage:
+
+```sh
+docker network create public
+docker volume create certs
+```
+
+### Step-ca Initialization and Password 🗝️
+
+Optionally set `DOCKER_STEPCA_INIT_PASSWORD` for certificate security. Store securely.
+If not set, step-ca will generate it on first run, make sure look at `docker compose logs` and write it down!
+
+### Managing step-ca on the Server 🎛️
+
+Add ACME provisioner for certificate requests:
+
+```sh
+cd ~/homelab/stacks/ca
+docker compose exec step-ca step ca provisioner add acme --type=ACME
+docker compose restart
+```
+
+### Copy Root and Intermediate CA Certificates 📑
+
+Get the CA certs then copy to your local machine:
+
+```sh
+docker cp ca.x.home.arpa:/home/step/certs/root_ca.crt .
+docker cp ca.x.home.arpa:/home/step/certs/intermediate_ca.crt .
+scp x.home.arpa:~/root_ca.crt .
+scp x.home.arpa:~/intermediate_ca.crt .
+```
+
+## Why Use the ca.x.home.arpa Container Name? ❓
+
+The CA container responds over HTTPS,
+Hostname set in `DOCKER_STEPCA_INIT_DNS_NAMES` should match HOST header you send.
+This container is not part of the Traefik definition to avoid disruption from self-signed certificates.
+
+## Installing Certificates in Your Trust Store 🏢
+
+Install the root and intermediate certificates per your OS guidelines.
+
+### NixOS Example 🐧
+
+Add certificates to your NixOS config:
 
 ```nix
-security.pki.certificateFiles = [ /path/to/root_ca.crt ];
+security.pki.certificateFiles = [
+  /path/to/root_ca.crt
+  /path/to/intermediate_ca.crt
+];
 ```
 
-You can now remove `root_ca.crt` from server.
+For other distros: See [Linux CA certificate management](https://www.baeldung.com/linux/ca-certificate-management).
+
+## TODO: CoreOS Butane Definition 📝
+
+Provide a Butane config example for automating CoreOS setup, containers, and networking.
+
+With these steps, you’ll automate and secure your homelab server, maintaining flexibility for containerized workloads with trusted HTTPS services.

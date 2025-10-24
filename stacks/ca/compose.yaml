@@ -3,16 +3,16 @@ name: ca
 
 services:
   step-ca:
-    container_name: step-ca
+    container_name: ca.x.home.arpa
     image: smallstep/step-ca
     environment:
       - DOCKER_STEPCA_INIT_NAME=Homelab
-      - DOCKER_STEPCA_INIT_DNS_NAMES=localhost
+      - DOCKER_STEPCA_INIT_DNS_NAMES=ca.x.home.arpa
     env_file: ./.env
     networks:
       - public
     volumes:
-      - step-ca:/home/step
+      - home:/home/step
       - certs:/home/step/certs
 
 networks:
@@ -20,6 +20,6 @@ networks:
     external: true
 
 volumes:
-  step-ca:
+  home:
   certs:
     external: true

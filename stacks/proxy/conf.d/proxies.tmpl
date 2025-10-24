@@ -123,7 +123,7 @@ http:
         {{end}}
         servers:
           {{if .HostNetwork}}
-          - url: http://172.17.0.1:{{.Port}}
+          - url: http://host.containers.internal:{{.Port}}
           {{else}}
           - url: http://{{.Service}}:{{.Port}}
           {{end}}
@@ -135,7 +135,7 @@ http:
     {{if .Enable}}
     {{.Service}}:
       {{$domain := or .Alias .Service}}
-      rule: "Host(`{{$domain}}.s1.home.arpa`) || Host(`{{$domain}}.s2.home.arpa`)"
+      rule: "Host(`{{$domain}}.x.home.arpa`)"
       entryPoints:
         - websecure
       {{ if not .Keepalive }}
@@ -143,6 +143,7 @@ http:
         - {{.Service}}-sablier@file
       {{ end }}
       service: {{.Service}}
-      tls: true
+      tls:
+        certresolver: ca
     {{end}}
   {{end}}

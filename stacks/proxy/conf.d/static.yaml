@@ -14,14 +14,16 @@ http:
 
   routers:
     plex:
-      rule: "Host(`plex.s2.home.arpa`)"
+      rule: "Host(`plex.x.home.arpa`)"
       entryPoints:
         - websecure
       service: plex
-      tls: true
+      tls:
+        certresolver: ca
     cockpit:
-      rule: "Host(`cockpit.s2.home.arpa`)"
+      rule: "Host(`cockpit.x.home.arpa`)"
       entryPoints:
         - websecure
       service: cockpit
-      tls: true
+      tls:
+        certresolver: ca

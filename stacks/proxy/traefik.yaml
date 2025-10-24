@@ -26,7 +26,7 @@ entryPoints:
     address: ":443"
     http:
       tls:
-        certResolver: stepca
+        certResolver: ca
 
 experimental:
   fastProxy: {}
@@ -36,9 +36,9 @@ experimental:
       version: v1.10.1
 
 certificatesResolvers:
-  stepca:
+  ca:
     acme:
-      caServer: "http://step-ca:9000/acme/acme/directory"
+      caServer: "https://ca.x.home.arpa:9000/acme/acme/directory"
       email: "pieceof@duck.com"
       certificatesDuration: 2160
       httpChallenge:
