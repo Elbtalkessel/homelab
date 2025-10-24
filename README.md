@@ -130,6 +130,8 @@ security.pki.certificateFiles = [
 
 For other distros: See [Linux CA certificate management](https://www.baeldung.com/linux/ca-certificate-management).
 
+Note: firefox (and firefox based browsers) ignore system certificates. In settings type "certificate" -> View Certificates -> Authorities -> import both root and intermediate certs.
+
 ## TODO: CoreOS Butane Definition 📝
 
 Provide a Butane config example for automating CoreOS setup, containers, and networking.
