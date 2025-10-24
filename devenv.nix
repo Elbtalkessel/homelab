@@ -18,12 +18,21 @@
       rsync --existing -Parvz ${config.env.SSH_USER}@${config.env.SSH_HOST}:${config.env.REMOTE_DIR}/ .
     '';
 
-    ignite.exec = ''
-      set -e
+    bu-check.exec = ''
+      code=0
+
       for p in $@; do
-        butane "$p" -d ${config.env.DEVENV_ROOT} --pretty > ''${p%.*}.ign
-        echo "''${p}.bu > ''${p%.*}.ign"
+        err=$(butane "$p" -d ${config.env.DEVENV_ROOT} -c 2>&1)
+        printf "\033[90m''${p}:\033[0m "
+        if test -n "$err"; then
+          printf "\033[31m''${err}\033[0m\n"
+          code=1
+        else
+          printf "\033[32mOK\033[0m\n"
+        fi
       done
+
+      exit $code
     '';
 
     # A simple HTTP server serving any file.
@@ -57,10 +66,10 @@
   };
 
   git-hooks.hooks = {
-    ignite = {
+    check-butane = {
       enable = true;
-      name = "Ignite butane files";
-      entry = "ignite";
+      name = "Check butane";
+      entry = "bu-check";
       files = "\\.(yaml|yml|bu)$";
       pass_filenames = true;
     };
