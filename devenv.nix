@@ -84,7 +84,7 @@
       enable = true;
       name = "Check butane";
       entry = "bu-check";
-      files = "\\.(yaml|yml|bu)$";
+      files = "coreos/\\.(yaml|yml|bu)$";
       pass_filenames = true;
     };
 

@@ -54,12 +54,6 @@ storage:
           AllowUnencrypted = true
           ClientCertAuthentication = false
 
-    - path: /var/home/risus/.bashrc.d/environment
-      mode: 0644
-      contents:
-        inline: |
-          export DOCKER_HOST=unix:///run/user/1001/podman/podman.sock
-
   trees:
     - local: stacks
       path: /var/home/risus/homelab/stacks

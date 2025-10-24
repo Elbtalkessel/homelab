@@ -1,0 +1,19 @@
+---
+name: dns
+
+services:
+  adguard:
+    container_name: adguard
+    image: adguard/adguardhome
+    restart: unless-stopped
+    volumes:
+      - ag-work:/opt/adguardhome/work
+      - ag-conf:/opt/adguardhome/conf
+    ports:
+      - 53:53
+    networks:
+      - public
+
+volumes:
+  ag-work:
+  ag-conf:
