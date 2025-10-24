@@ -1,3 +1,4 @@
+---
 variant: fcos
 version: 1.6.0
 
@@ -19,6 +20,14 @@ storage:
       mode: 0644
       contents:
         inline: coreos
+
+    - path: /etc/hosts
+      mode: 0644
+      contents:
+        inline: |
+          127.0.0.1     localhost localhost.localdomain localhost4 localhost4.localdomain4
+          ::1           localhost localhost.localdomain localhost6 localhost6.localdomain6
+          s1.home.apra  192.168.8.91
 
     - path: /etc/zincati/config.d/90-disable-auto-updates.toml
       mode: 0644
@@ -50,6 +59,14 @@ storage:
       contents:
         inline: |
           export DOCKER_HOST=unix:///run/user/1001/podman/podman.sock
+
+  trees:
+    - local: stacks
+      path: /var/home/risus/homelab/stacks
+
+  directories:
+    - path: /mnt/s1
+      mode: 0700
 
   disks:
     - device: /dev/sdb
@@ -93,7 +110,7 @@ systemd:
         WantedBy=multi-user.target
 
     - name: docker.socket
-      enabled: true
+      enabled: false
       contents: |
         [Unit]
         Description=Docker Socket for the API
@@ -108,3 +125,32 @@ systemd:
         [Install]
         WantedBy=sockets.target
 
+    - name: s1-media.mount
+      enabled: true
+      contents: |
+        [Unit]
+        After=network.target
+
+        [Mount]
+        What=s1.home.arpa:/volume1/Video
+        Where=/mnt/s1/media
+        Type=nfs
+        Options=_netdev,auto,vers=4
+
+        [Install]
+        WantedBy=podman.service
+
+    - name: s1-whatever.mount
+      enabled: true
+      contents: |
+        [Unit]
+        After=network.target
+
+        [Mount]
+        What=s1.home.arpa:/volume1/Whatever
+        Where=/mnt/s1/whatever
+        Type=nfs
+        Options=_netdev,auto,vers=4
+
+        [Install]
+        WantedBy=podman.service
