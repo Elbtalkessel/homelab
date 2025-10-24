@@ -35,6 +35,23 @@ storage:
           [Timer]
           OnCalendar=weekly
 
+    - path: /etc/cockpit/cockpit.conf
+      mode: 0644
+      contents:
+        inline: |
+          [WebService]
+          Origins = cockpit.x.home.arpa
+          ProtocolHeader = X-Forwarded-Proto
+          ForwardedForHeader = X-Forwarded-For
+          AllowUnencrypted = true
+          ClientCertAuthentication = false
+
+    - path: /var/home/risus/.bashrc.d/environment
+      mode: 0644
+      contents:
+        inline: |
+          export DOCKER_HOST=unix:///run/user/1001/podman/podman.sock
+
   disks:
     - device: /dev/sdb
       wipe_table: false
