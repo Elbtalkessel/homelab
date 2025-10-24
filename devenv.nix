@@ -25,7 +25,7 @@
 
       # Syncs local stacks directory with remote.
       syncup.exec = ''
-        rsync -Parvz bin coreos stacks ${ssh-uri}:${config.env.REMOTE_DIR}/
+        rsync --del -Parvz bin coreos stacks ${ssh-uri}:${config.env.REMOTE_DIR}/
       '';
 
       # Pulls stacks directory from server (only files present locally).
