@@ -1,103 +1,95 @@
+# vim: set filetype=go :
+
 {{$proxies := list
   (dict "Service" "calibre"
         "Enable" false
-	      "SessionDuration" "30m"
+        "SuspendAfter" "30m"
         "Port" 8083)
 
 	(dict "Service" "dockge"
         "Enable" false
+        "SuspendAfter" "30m"
 	      "Alias" "docker"
-	      "SessionDuration" "30m"
         "Port" 5001)
 
 	(dict "Service" "filebot"
         "Enable" false
+        "SuspendAfter" "30m"
         "Port" 5452)
 
 	(dict "Service" "gitea"
         "Enable" false
-	      "SessionDuration" "1h"
         "Port" 3000)
 
 	(dict "Service" "immich"
-        "Enable" false
+        "Enable" true
 	      "Alias" "photos"
-        "Port" 2283
-	      "SessionDuration" "3h"
-        "Names" "immich,immich-ml,immich-redis")
+        "Port" 2283)
 
 	(dict "Service" "adminer"
         "Enable" false
+        "SuspendAfter" "30m"
         "Port" 8080)
 
 	(dict "Service" "stash"
         "Enable" true
-	      "Keepalive" true
         "Port" 9999)
 
 	(dict "Service" "vaultwarden"
         "Enable" false
-        "Port" 80
-        "Keepalive" true
-        "Alias" "vault")
+        "Alias" "vault"
+        "Port" 80)
 
 	(dict "Service" "lidarr"
         "Enable" false
-	      "Keepalive" true
         "Port" 8686)
 
 	(dict "Service" "overseerr"
         "Enable" false
-	      "SessionDuration" "1h"
+	      "SuspendAfter" "1h"
         "Port" 5055)
 
 	(dict "Service" "prowlarr"
         "Enable" false
-	      "Keepalive" true
         "Port" 9696)
 
 	(dict "Service" "radarr"
         "Enable" false
-	      "Keepalive" true
         "Port" 7878)
 
 	(dict "Service" "sonarr"
         "Enable" false
-	      "Keepalive" true
         "Port" 8989)
 
 	(dict "Service" "torrent"
         "Enable" false
-	      "Keepalive" true
         "Port" 8080)
 
   (dict "Service" "glances"
         "Enable" false
+        "SuspendAfter" "30m"
         "HostNetwork" true
         "Port" 61209)
 
   (dict "Service" "invidious"
         "Enable" true
         "Alias" "yt"
-        "Port" 3000
-        "Keepalive" true)
+        "Port" 3000)
 
   (dict "Service" "notifiarr"
         "Enable" false
-        "Port" 5454
-        "Keepalive" true)
+        "Port" 5454)
 
   (dict "Service" "adguard"
         "Enable" true
-        "Port" 80
-        "Keepalive" true)
+        "Port" 80)
 }}
 
 http:
   middlewares:
   {{range $proxies}}
   {{if .Enable}}
-  {{if not .Keepalive }}
+  {{if .SuspendAfter }}
     {{.Service}}-sablier:
       plugin:
         sablier:
@@ -112,7 +104,7 @@ http:
             theme: shuffle
           {{end}}
           sablierUrl: http://sablier:10000
-          sessionDuration: {{or .SessionDuration "10m"}}
+          sessionDuration: {{.SuspendAfter}}
           names: {{or .Names .Service}}
   {{end}}
   {{end}}
@@ -143,7 +135,7 @@ http:
       rule: "Host(`{{$domain}}.x.home.arpa`)"
       entryPoints:
         - websecure
-      {{ if not .Keepalive }}
+      {{ if .SuspendAfter }}
       middlewares:
         - {{.Service}}-sablier@file
       {{ end }}
