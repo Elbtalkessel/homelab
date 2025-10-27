@@ -54,6 +54,12 @@ storage:
           AllowUnencrypted = true
           ClientCertAuthentication = false
 
+    - path: /etc/sysctl.d/98-unpriv-port.conf
+      mode: 0777
+      contents:
+        inline: |
+          net.ipv4.ip_unprivileged_port_start=53
+
   trees:
     - local: stacks
       path: /var/home/risus/homelab/stacks
@@ -119,6 +125,9 @@ systemd:
         [Install]
         WantedBy=sockets.target
 
+    - namer: systemd-resolved.service
+      enabled: false
+
     - name: s1-media.mount
       enabled: true
       contents: |
@@ -128,21 +137,6 @@ systemd:
         [Mount]
         What=s1.home.arpa:/volume1/Video
         Where=/mnt/s1/media
-        Type=nfs
-        Options=_netdev,auto,vers=4
-
-        [Install]
-        WantedBy=podman.service
-
-    - name: s1-whatever.mount
-      enabled: true
-      contents: |
-        [Unit]
-        After=network.target
-
-        [Mount]
-        What=s1.home.arpa:/volume1/Whatever
-        Where=/mnt/s1/whatever
         Type=nfs
         Options=_netdev,auto,vers=4
 
