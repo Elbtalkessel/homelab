@@ -1,11 +1,13 @@
+---
 name: immich
+
 services:
   immich:
     image: ghcr.io/immich-app/immich-server:release
     container_name: immich
     restart: unless-stopped
     volumes:
-      - /volume1/Docker/Immich/upload:/usr/src/app/upload
+      - upload:/usr/src/app/upload
       - /etc/localtime:/etc/localtime:ro
     environment:
       - DB_HOSTNAME=immich-db
@@ -13,7 +15,7 @@ services:
     env_file: ./immich.env
     networks:
       - public
-      - immich
+      - internal
     depends_on:
       - immich-redis
       - immich-db
@@ -21,6 +23,7 @@ services:
       disable: false
     devices:
       - /dev/dri:/dev/dri
+
   immich-ml:
     container_name: immich-ml
     image: ghcr.io/immich-app/immich-machine-learning:release
@@ -30,7 +33,8 @@ services:
     healthcheck:
       disable: false
     networks:
-      - immich
+      - internal
+
   immich-redis:
     # https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml
     # Official documentation suggest to use commit hash instead of tag:
@@ -43,31 +47,28 @@ services:
     healthcheck:
       test: redis-cli ping || exit 1
     networks:
-      - immich
+      - internal
     labels:
       - com.centurylinklabs.watchtower.enable=false
+
   immich-db:
     image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
     container_name: immich-db
     restart: unless-stopped
     volumes:
-      - /volume1/Docker/Immich/postgresql/data:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
     environment:
       - POSTGRES_INITDB_ARGS="--data-checksums"
-      - DB_STORAGE_TYPE=HDD
     env_file: ./immich.env
     networks:
-      - immich
-      - immich-database
+      - internal
+
 volumes:
   model-cache: null
+  db: null
+  upload: null
+
 networks:
-  immich: null
+  internal: null
   public:
     external: true
-  immich-database:
-    external: true
-x-dockge:
-  urls:
-    - https://photos.s1.home.arpa
-    - https://photos.s2.home.arpa
