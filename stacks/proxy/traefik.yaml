@@ -1,10 +1,10 @@
 ---
 api:
   insecure: false
-  dashboard: false
+  dashboard: true
 
 log:
-  level: WARN
+  level: INFO
 
 providers:
   docker:
@@ -38,7 +38,7 @@ experimental:
 certificatesResolvers:
   ca:
     acme:
-      caServer: "https://ca.x.home.arpa:9000/acme/acme/directory"
+      caServer: "https://step-ca:9000/acme/acme/directory"
       email: "pieceof@duck.com"
       certificatesDuration: 2160
       httpChallenge:
