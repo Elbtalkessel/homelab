@@ -15,9 +15,7 @@ services:
       - OAUTHLIB_RELAX_TOKEN_SCOPE=1
     networks:
       - public
+
 networks:
   public:
     external: true
-x-dockge:
-  urls:
-    - https://calibre.s1.home.arpa
