@@ -6,8 +6,9 @@ services:
     image: ghcr.io/immich-app/immich-server:release
     container_name: immich
     restart: unless-stopped
+    userns_mode: keep-id
     volumes:
-      - upload:/usr/src/app/upload
+      - mnt-s1-immich:/usr/src/app/upload
       - /etc/localtime:/etc/localtime:ro
     environment:
       - DB_HOSTNAME=immich-db
@@ -25,7 +26,7 @@ services:
       - /dev/dri:/dev/dri
 
   immich-ml:
-    container_name: immich-ml
+    container_name: immich-machine-learning
     image: ghcr.io/immich-app/immich-machine-learning:release
     restart: unless-stopped
     volumes:
@@ -66,7 +67,8 @@ services:
 volumes:
   model-cache: null
   db: null
-  upload: null
+  mnt-s1-immich:
+    external: true
 
 networks:
   internal: null
