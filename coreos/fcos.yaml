@@ -9,6 +9,7 @@ passwd:
       shell: /bin/bash
       ssh_authorized_keys:
         - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC7ulI5D34Y49wPgraM2iHLJHYzKBlJaB1akgibNJR1y risus@omen
+      password_hash: $y$j9T$6lwjsigqkbzVyO6AOXzjU1$ApOE5zNIQgEmlAO7dwbAojliR/bNdFOINwWG14kT6Y1
       groups:
         - wheel
         - sudo
@@ -18,19 +19,13 @@ storage:
   files:
     - path: /etc/hostname
       mode: 0644
+      overwrite: true
       contents:
         inline: coreos
 
-    - path: /etc/hosts
-      mode: 0644
-      contents:
-        inline: |
-          127.0.0.1     localhost localhost.localdomain localhost4 localhost4.localdomain4
-          ::1           localhost localhost.localdomain localhost6 localhost6.localdomain6
-          s1.home.apra  192.168.8.91
-
     - path: /etc/zincati/config.d/90-disable-auto-updates.toml
       mode: 0644
+      overwrite: true
       contents:
         inline: |
           [updates]
@@ -38,6 +33,7 @@ storage:
 
     - path: /etc/systemd/system/rpm-ostree-countme.timer.d/40-weekly.conf
       mode: 0644
+      overwrite: true
       contents:
         inline: |
           [Timer]
@@ -45,6 +41,7 @@ storage:
 
     - path: /etc/cockpit/cockpit.conf
       mode: 0644
+      overwrite: true
       contents:
         inline: |
           [WebService]
@@ -56,17 +53,14 @@ storage:
 
     - path: /etc/sysctl.d/98-unpriv-port.conf
       mode: 0777
+      overwrite: true
       contents:
         inline: |
           net.ipv4.ip_unprivileged_port_start=53
 
-  trees:
-    - local: stacks
-      path: /var/home/risus/homelab/stacks
-
   directories:
     - path: /mnt/s1
-      mode: 0700
+      mode: 0755
 
   disks:
     - device: /dev/sdb
@@ -110,7 +104,7 @@ systemd:
         WantedBy=multi-user.target
 
     - name: docker.socket
-      enabled: false
+      enabled: true
       contents: |
         [Unit]
         Description=Docker Socket for the API
@@ -125,20 +119,71 @@ systemd:
         [Install]
         WantedBy=sockets.target
 
-    - namer: systemd-resolved.service
-      enabled: false
-
-    - name: s1-media.mount
+    # Calibre,Video,Immich,xyz
+    - name: var-mnt-s1-books.mount
       enabled: true
       contents: |
         [Unit]
-        After=network.target
+        After=network-online.target nss-lookup.target
+        Wants=network-online.target
+
+        [Mount]
+        What=s1.home.arpa:/volume1/Calibre
+        Where=/var/mnt/s1/books
+        Type=nfs
+        Options=_netdev,vers=4,hard,noatime,x-systemd.mount-timeout=30
+        TimeoutSec=30
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: var-mnt-s1-media.mount
+      enabled: true
+      contents: |
+        [Unit]
+        After=network-online.target nss-lookup.target
+        Wants=network-online.target
 
         [Mount]
         What=s1.home.arpa:/volume1/Video
-        Where=/mnt/s1/media
+        Where=/var/mnt/s1/media
         Type=nfs
-        Options=_netdev,auto,vers=4
+        Options=_netdev,vers=4,hard,noatime,x-systemd.mount-timeout=30
+        TimeoutSec=30
 
         [Install]
-        WantedBy=podman.service
+        WantedBy=multi-user.target
+
+    - name: var-mnt-s1-immich.mount
+      enabled: true
+      contents: |
+        [Unit]
+        After=network-online.target nss-lookup.target
+        Wants=network-online.target
+
+        [Mount]
+        What=s1.home.arpa:/volume1/Immich
+        Where=/var/mnt/s1/immich
+        Type=nfs
+        Options=_netdev,vers=4,hard,noatime,x-systemd.mount-timeout=30
+        TimeoutSec=30
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: var-mnt-s1-xyz.mount
+      enabled: true
+      contents: |
+        [Unit]
+        After=network-online.target nss-lookup.target
+        Wants=network-online.target
+
+        [Mount]
+        What=s1.home.arpa:/volume1/xyz
+        Where=/var/mnt/s1/xyz
+        Type=nfs
+        Options=_netdev,vers=4,hard,noatime,x-systemd.mount-timeout=30
+        TimeoutSec=30
+
+        [Install]
+        WantedBy=multi-user.target
