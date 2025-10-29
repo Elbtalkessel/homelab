@@ -1,0 +1,14 @@
+[Unit]
+Description=Sablier Scheduler
+PartOf=proxy.target
+After=traefik.container
+
+[Container]
+Image=docker.io/acouvreur/sablier:1.3.0
+Privileged=yes
+Exec=start --provider.name=docker --sessions.expiration-interval=15m --sessions.default-duration=1h
+Volume=/run/user/1001/podman/podman.sock:/var/run/docker.sock:z
+Network=public
+
+[Install]
+WantedBy=default.target
