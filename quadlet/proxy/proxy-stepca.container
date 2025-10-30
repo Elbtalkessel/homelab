@@ -1,7 +1,6 @@
 [Unit]
 Description=Certificate Authority Server
-PartOf=proxy.target
-After=local-fs.target network-online.target
+After=network-online.target
 
 [Install]
 WantedBy=default.target

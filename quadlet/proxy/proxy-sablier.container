@@ -1,7 +1,5 @@
 [Unit]
 Description=Sablier Scheduler
-PartOf=proxy.target
-After=traefik.container
 Requires=podman.socket
 
 [Container]

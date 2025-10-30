@@ -1,0 +1,4 @@
+[Unit]
+Description=Storage step-ca service home directory
+
+[Volume]
