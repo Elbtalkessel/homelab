@@ -7,11 +7,11 @@ After=local-fs.target network-online.target
 WantedBy=default.target
 
 [Container]
-Image=docker.io/smallstep/traefik:v3.5
+Image=docker.io/smallstep/step-ca
 Environment="DOCKER_STEPCA_INIT_NAME=Homelab"
 Environment="DOCKER_STEPCA_INIT_DNS_NAMES=ca.x.home.arpa,step-ca"
 Environment="DOCKER_STEPCA_INIT_ACME=true"
-EnvironmentFile=&h/homelab/stacks/proxy/proxy-stepca.env
+Secret="stepca-password,type=env,target=DOCKER_STEPCA_INIT_PASSWORD"
 AutoUpdate=registry
 Volume=proxy-stepca-home.volume:/home/step
 Volume=proxy-certs.volume:/home/step/certs:z

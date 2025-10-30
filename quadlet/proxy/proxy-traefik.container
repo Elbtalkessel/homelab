@@ -1,7 +1,8 @@
 [Unit]
 Description=Traefik reverse proxy
 PartOf=proxy.target
-After=local-fs.target network-online.target
+After=network-online.target
+Requires=podman.socket proxy-stepca-container.service
 
 [Install]
 WantedBy=default.target
@@ -12,13 +13,16 @@ PodmanArgs=--privileged
 Exec=--configFile=/etc/traefik/traefik.yaml
 Environment="LEGO_CA_CERTIFICATES=/certs/root_ca.crt"
 AutoUpdate=registry
-Volume=/run/user/1001/podman/podman.sock:/var/run/docker.sock:ro,z
+
+Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro,z
 Volume=%h/homelab/stacks/traefik/conf.d:/etc/traefik/conf.d:ro
 Volume=%h/homelab/stacks/traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro
 Volume=proxy-certs.volume:/certs:ro,z
+
 PublishPort=80:80
 PublishPort=443:443
 Network=public.network
+
 Label=traefik.enable=true
 Label=traefik.http.routers.dashboard.rule=Host(`traefik.x.home.arpa`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`) || PathPrefix(`/dashboard/`))
 Label=traefik.http.routers.dashboard.entrypoints=websecure

@@ -26,7 +26,7 @@
       # Syncs local stacks directory with remote.
       syncup.exec = ''
         rsync --del -Parvz bin coreos stacks ${ssh-uri}:${config.env.REMOTE_DIR}/
-        # rsync -Parvz quadlet ${ssh-uri}:~/.config/systemd/user/
+        rsync -Parvz quadlet ${ssh-uri}:~/.config/containers/systemd/
       '';
 
       bu-check.exec = ''
