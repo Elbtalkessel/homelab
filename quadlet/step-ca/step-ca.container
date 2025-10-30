@@ -1,0 +1,19 @@
+[Unit]
+Description=Certificate Authority Server
+After=network-online.target
+
+[Install]
+WantedBy=default.target
+
+[Container]
+ContainerName=step-ca
+Image=docker.io/smallstep/step-ca
+Environment="DOCKER_STEPCA_INIT_NAME=Homelab"
+Environment="DOCKER_STEPCA_INIT_DNS_NAMES=ca.x.home.arpa,step-ca"
+Environment="DOCKER_STEPCA_INIT_ACME=true"
+Secret="stepca-password,type=env,target=DOCKER_STEPCA_INIT_PASSWORD"
+AutoUpdate=registry
+Volume=step-ca-home.volume:/home/step
+Volume=step-ca-certs.volume:/home/step/certs:z
+Network=public.network
+
