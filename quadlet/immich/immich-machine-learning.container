@@ -1,0 +1,9 @@
+[Unit]
+Description=Immich Server Machine Learning
+
+[Container]
+ContainerName=immich-machine-learning
+Image=ghcr.io/immich-app/immich-machine-learning:release
+AutoUpdate=registry
+Volume=immich-machine-learning-cache.volume:/cache
+Network=immich.network

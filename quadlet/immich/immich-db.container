@@ -1,0 +1,11 @@
+[Unit]
+Description=Immich Server Database
+
+[Container]
+Image=ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
+ContainerName=immich-db
+AutoUpdate=registry
+Volume=immich-db.volume:/var/lib/postgresql/data
+Environment="POSTGRES_INITDB_ARGS='--data-checksums'"
+EnvironmentFile="%h/homelab/stacks/immich/immich.env"
+Network=immich.network

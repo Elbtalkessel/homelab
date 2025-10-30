@@ -1,0 +1,23 @@
+[Unit]
+Description=Immich Server
+Requires=immich-redis.service immich-db.service immich-machine-learning.service
+
+[Install]
+WantedBy=default.target
+
+[Container]
+Image=ghcr.io/immich-app/immich-server:release
+ContainerName=immich
+AutoUpdate=registry
+UserNS=keep-id
+GroupAdd=keep-groups
+User=%U:%U
+Volume=/var/mnt/s1/immich:/usr/src/app/upload
+Volume=/etc/localtime:/etc/localtime:ro
+Environment="DB_HOSTNAME=immich-db"
+Environment="REDIS_HOSTNAME=immich-redis"
+EnvironmentFile="%h/homelab/stacks/immich/immich.env"
+Network=public.network
+Network=immich.network
+AddDevice=/dev/dri:/dev/dri
+
