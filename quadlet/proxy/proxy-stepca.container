@@ -1,0 +1,19 @@
+[Unit]
+Description=Certificate Authority Server
+PartOf=proxy.target
+After=local-fs.target network-online.target
+
+[Install]
+WantedBy=default.target
+
+[Container]
+Image=docker.io/smallstep/traefik:v3.5
+Environment="DOCKER_STEPCA_INIT_NAME=Homelab"
+Environment="DOCKER_STEPCA_INIT_DNS_NAMES=ca.x.home.arpa,step-ca"
+Environment="DOCKER_STEPCA_INIT_ACME=true"
+EnvironmentFile=&h/homelab/stacks/proxy/proxy-stepca.env
+AutoUpdate=registry
+Volume=proxy-stepca-home.volume:/home/step
+Volume=proxy-certs.volume:/home/step/certs:z
+Network=public.network
+

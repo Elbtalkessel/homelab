@@ -1,20 +1,24 @@
 [Unit]
 Description=Traefik reverse proxy
 PartOf=proxy.target
-After=network-online.target default.target
+After=local-fs.target network-online.target
+
+[Install]
+WantedBy=default.target
 
 [Container]
 Image=docker.io/library/traefik:v3.5
-Privileged=yes
+PodmanArgs=--privileged
 Exec=--configFile=/etc/traefik/traefik.yaml
-PublishPort=80:80
-PublishPort=443:443
+Environment="LEGO_CA_CERTIFICATES=/certs/root_ca.crt"
+AutoUpdate=registry
 Volume=/run/user/1001/podman/podman.sock:/var/run/docker.sock:ro,z
 Volume=%h/homelab/stacks/traefik/conf.d:/etc/traefik/conf.d:ro
 Volume=%h/homelab/stacks/traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro
-Volume=certs:/certs:ro
-Env=LEGO_CA_CERTIFICATES=/certs/root_ca.crt
-Network=public
+Volume=proxy-certs.volume:/certs:ro,z
+PublishPort=80:80
+PublishPort=443:443
+Network=public.network
 Label=traefik.enable=true
 Label=traefik.http.routers.dashboard.rule=Host(`traefik.x.home.arpa`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`) || PathPrefix(`/dashboard/`))
 Label=traefik.http.routers.dashboard.entrypoints=websecure
@@ -23,5 +27,3 @@ Label=traefik.http.routers.dashboard.tls.certresolver=ca
 Label=traefik.http.routers.dashboard.middlewares=auth
 Label=traefik.http.middlewares.auth.basicauth.users=risus:$$apr1$$Qhuh9sKg$$bhKbVV.XLZ2Ycegt/3zeL1
 
-[Install]
-WantedBy=default.target
