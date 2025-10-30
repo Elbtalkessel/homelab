@@ -9,7 +9,7 @@ log:
 providers:
   docker:
     exposedByDefault: false
-    network: systemd-public
+    network: public
   file:
     directory: /etc/traefik/conf.d
     watch: false
