@@ -1,0 +1,26 @@
+[Unit]
+Description=Stashapp Server
+
+[Install]
+WantedBy=default.target
+
+[Container]
+ContainerName=stash
+Image=docker.io/stashapp/stash:latest
+AutoUpdate=registry
+
+Environment="STASH_STASH=/data"
+Environment="STASH_GENERATED=/generated"
+Environment="STASH_METADATA=/metadata"
+Environment="STASH_CACHE=/cache"
+Environment="STASH_CONFIG=/root/.stash"
+Environment="STASH_PORT=9999"
+
+Volume=/etc/localtime:/etc/localtime:ro
+Volume=/var/mnt/s1/xyz:/data
+Volume=stash-generated.volume:/generated
+Volume=stash-metadata.volume:/metadata
+Volume=stash-cache.volume:/cache
+Volume=stash-config.volume:/root/.stash
+
+Network=public.network

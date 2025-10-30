@@ -1,0 +1,5 @@
+[Unit]
+Description=Stashapp generated directory
+
+[Volume]
+VolumeName=stash_generated
