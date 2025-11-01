@@ -1,6 +1,7 @@
 [Unit]
 Description=Certificate Authority Server
 After=network-online.target
+Requires=systemd-resolved.service
 
 [Install]
 WantedBy=default.target
