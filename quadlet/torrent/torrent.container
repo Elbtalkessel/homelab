@@ -15,4 +15,4 @@ Environment=DOCKER_MODS=ghcr.io/themepark-dev/theme.park:qbittorrent
 Environment=WEBUI_PORT=8080
 Environment=TORRENTING_PORT=6881
 Volume=torrent-config.volume:/config
-Volume=media.volume:/share/Video
+Volume=/var/mnt/s1/media:/share/Video

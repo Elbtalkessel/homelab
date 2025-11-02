@@ -8,7 +8,7 @@ WantedBy=default.target
 Image=lscr.io/linuxserver/lidarr:latest
 ContainerName=lidarr
 Volume=lidarr-config.volume:/config
-Volume=media.volume:/share/Video:z
+Volume=/var/mnt/s1/media:/share/Video
 Environment=TZ=Etc/UTC
 HealthCmd=CMD-SHELL curl --fail http://localhost:8686 || exit 1
 HealthStartPeriod=10s

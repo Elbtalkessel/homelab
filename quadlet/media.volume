@@ -1,7 +1,0 @@
-[Unit]
-Description=Media volume bind mount
-
-[Volume]
-VolumeName=media
-Type=bind
-Device=/var/mnt/s1/media
