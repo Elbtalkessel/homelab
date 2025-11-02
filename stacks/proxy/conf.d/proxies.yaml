@@ -41,7 +41,7 @@
         "Port" 80)
 
 	(dict "Service" "lidarr"
-        "Enable" false
+        "Enable" true
         "Port" 8686)
 
 	(dict "Service" "overseerr"
