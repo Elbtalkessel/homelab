@@ -6,6 +6,7 @@ WantedBy=default.target
 
 [Container]
 Image=lscr.io/linuxserver/qbittorrent:latest
+AutoUpdate=registry
 ContainerName=torrent
 Environment="TZ=Etc/UTC"
 Environment=QBITTORRENT_VERSION=5.1.2
@@ -16,3 +17,4 @@ Environment=WEBUI_PORT=8080
 Environment=TORRENTING_PORT=6881
 Volume=torrent-config.volume:/config
 Volume=/var/mnt/s1/media:/share/Video
+Network=public.network
