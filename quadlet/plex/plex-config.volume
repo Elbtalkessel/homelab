@@ -1,0 +1,5 @@
+[Unit]
+Description=Plex Server Configuration
+
+[Volume]
+VolumeName=plex-config

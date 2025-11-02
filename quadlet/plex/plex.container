@@ -1,0 +1,20 @@
+[Unit]
+Description=Plex Server
+
+[Install]
+WantedBy=default.target
+
+[Container]
+Image=docker.io/plexinc/pms-docker:latest
+AutoUpdate=registry
+ContainerName=plex
+Volume=plex-config.volume:/config
+Volume=/var/mnt/s1/media:/share/Video
+Environment="PLEX_UID=1000"
+Environment="PLEX_GID=1000"
+Environment="TZ=Etc/UTC"
+Environment="VERSION=docker"
+UIDMap=1000:0:1
+UIDMap=0:1:1000
+UIDMap=1001:1001:64536
+Network=host
