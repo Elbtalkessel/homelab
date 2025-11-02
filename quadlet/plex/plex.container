@@ -9,7 +9,7 @@ Image=docker.io/plexinc/pms-docker:latest
 AutoUpdate=registry
 ContainerName=plex
 Volume=plex-config.volume:/config
-Volume=/var/mnt/s1/media:/share/Video
+Volume=media.volume:/share/Video:z
 Environment="TZ=Etc/UTC"
 Environment="VERSION=docker"
 Network=host

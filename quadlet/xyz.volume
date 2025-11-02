@@ -1,0 +1,7 @@
+[Unit]
+Description=Stashapp data volume bind mount
+
+[Volume]
+VolumeName=xyz
+Type=bind
+Device=/var/mnt/s1/xyz

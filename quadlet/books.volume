@@ -1,0 +1,7 @@
+[Unit]
+Description=Calibre books volume bind mount
+
+[Volume]
+VolumeName=books
+Type=bind
+Device=/var/mnt/s1/books

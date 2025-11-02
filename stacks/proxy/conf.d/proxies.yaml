@@ -62,7 +62,7 @@
         "Port" 8989)
 
 	(dict "Service" "torrent"
-        "Enable" false
+        "Enable" true
         "Port" 8080)
 
   (dict "Service" "glances"

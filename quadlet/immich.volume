@@ -1,0 +1,7 @@
+[Unit]
+Description=Immich Upload volume bind mount
+
+[Volume]
+VolumeName=immich
+Type=bind
+Device=/var/mnt/s1/immich

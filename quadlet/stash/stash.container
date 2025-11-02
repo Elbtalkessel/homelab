@@ -17,7 +17,7 @@ Environment="STASH_CONFIG=/root/.stash"
 Environment="STASH_PORT=9999"
 
 Volume=/etc/localtime:/etc/localtime:ro
-Volume=/var/mnt/s1/xyz:/data
+Volume=xyz.volume:/data
 Volume=stash-generated.volume:/generated
 Volume=stash-metadata.volume:/metadata
 Volume=stash-cache.volume:/cache
