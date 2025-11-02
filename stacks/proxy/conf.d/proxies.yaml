@@ -3,18 +3,15 @@
 {{$proxies := list
   (dict "Service" "calibre"
         "Enable" false
-        "SuspendAfter" "30m"
         "Port" 8083)
 
 	(dict "Service" "dockge"
         "Enable" false
-        "SuspendAfter" "30m"
 	      "Alias" "docker"
         "Port" 5001)
 
 	(dict "Service" "filebot"
         "Enable" false
-        "SuspendAfter" "30m"
         "Port" 5452)
 
 	(dict "Service" "gitea"
@@ -28,7 +25,6 @@
 
 	(dict "Service" "adminer"
         "Enable" false
-        "SuspendAfter" "30m"
         "Port" 8080)
 
 	(dict "Service" "stash"
@@ -46,7 +42,6 @@
 
 	(dict "Service" "overseerr"
         "Enable" false
-	      "SuspendAfter" "1h"
         "Port" 5055)
 
 	(dict "Service" "prowlarr"
@@ -67,7 +62,6 @@
 
   (dict "Service" "glances"
         "Enable" false
-        "SuspendAfter" "30m"
         "HostNetwork" true
         "Port" 61209)
 

@@ -1,7 +1,7 @@
 [Unit]
 Description=Traefik reverse proxy
 After=network-online.target
-Requires=podman.socket step-ca.service sablier.service
+Requires=podman.socket step-ca.service
 
 [Install]
 WantedBy=default.target
