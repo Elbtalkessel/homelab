@@ -1,0 +1,5 @@
+[Unit]
+Description=Prowlarr Service Config
+
+[Volume]
+VolumeName=prowlarr-config

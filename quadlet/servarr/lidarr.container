@@ -1,5 +1,7 @@
 [Unit]
 Description=Music collection manager
+Documentation=https://wiki.servarr.com/lidarr
+Wants=torrent.service
 
 [Install]
 WantedBy=default.target
