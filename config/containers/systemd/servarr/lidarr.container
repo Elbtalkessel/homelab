@@ -8,6 +8,7 @@ WantedBy=default.target
 
 [Container]
 Image=lscr.io/linuxserver/lidarr:latest
+AutoUpdate=registry
 ContainerName=lidarr
 Volume=lidarr-config.volume:/config
 Volume=/var/mnt/s1/media:/share/Video

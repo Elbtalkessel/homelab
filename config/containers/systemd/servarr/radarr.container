@@ -1,0 +1,23 @@
+[Unit]
+Description=The Movie Collection Manager
+Documentation=https://wiki.servarr.com/radarr
+Wants=torrent.service
+
+[Install]
+WantedBy=default.target
+
+[Container]
+Image=lscr.io/linuxserver/radarr:latest
+AutoUpdate=registry
+ContainerName=radarr
+Volume=radarr-config.volume:/config
+Volume=/var/mnt/s1/media:/share/Video
+Environment=TZ=Etc/UTC
+Environment=PUID=0
+Environment=PGID=0
+HealthCmd=CMD-SHELL curl --fail http://localhost:7878 || exit 1
+HealthStartPeriod=10s
+HealthInterval=5s
+HealthStartupTimeout=5s
+HealthRetries=5
+Network=public.network

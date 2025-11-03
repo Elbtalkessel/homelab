@@ -1,0 +1,20 @@
+[Unit]
+Description=Overseerr is a request management and media discovery tool built to work with your existing Plex ecosystem.
+Documentation=https://docs.overseerr.dev/
+
+[Install]
+WantedBy=default.target
+
+[Container]
+Image=docker.io/sctx/overseerr:latest
+AutoUpdate=registry
+ContainerName=overseerr
+Volume=overseerr-config.volume:/app/config
+Environment=TZ=Etc/UTC
+Environment=PORT=5055
+HealthCmd=CMD-SHELL wget http://localhost:5055/api/v1/status -qO /dev/null || exit 1
+HealthStartPeriod=10s
+HealthInterval=5s
+HealthStartupTimeout=5s
+HealthRetries=5
+Network=public.network

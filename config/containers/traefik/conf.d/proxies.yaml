@@ -5,11 +5,6 @@
         "Enable" false
         "Port" 8083)
 
-	(dict "Service" "dockge"
-        "Enable" false
-	      "Alias" "docker"
-        "Port" 5001)
-
 	(dict "Service" "filebot"
         "Enable" false
         "Port" 5452)
@@ -41,7 +36,7 @@
         "Port" 8686)
 
 	(dict "Service" "overseerr"
-        "Enable" false
+        "Enable" true
         "Port" 5055)
 
 	(dict "Service" "prowlarr"
@@ -49,21 +44,16 @@
         "Port" 9696)
 
 	(dict "Service" "radarr"
-        "Enable" false
+        "Enable" true
         "Port" 7878)
 
 	(dict "Service" "sonarr"
-        "Enable" false
+        "Enable" true
         "Port" 8989)
 
 	(dict "Service" "torrent"
         "Enable" true
         "Port" 8080)
-
-  (dict "Service" "glances"
-        "Enable" false
-        "HostNetwork" true
-        "Port" 61209)
 
   (dict "Service" "invidious"
         "Enable" true

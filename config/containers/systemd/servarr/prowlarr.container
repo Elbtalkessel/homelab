@@ -8,6 +8,7 @@ WantedBy=default.target
 
 [Container]
 Image=lscr.io/linuxserver/prowlarr:latest
+AutoUpdate=registry
 ContainerName=prowlarr
 Volume=prowlarr-config.volume:/config
 Environment=TZ=Etc/UTC
