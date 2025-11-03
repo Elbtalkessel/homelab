@@ -7,5 +7,7 @@ ContainerName=immich-db
 AutoUpdate=registry
 Volume=immich-db.volume:/var/lib/postgresql/data
 Environment="POSTGRES_INITDB_ARGS='--data-checksums'"
-EnvironmentFile="%h/homelab/stacks/immich/immich.env"
+Environment="POSTGRES_USER=postgres"
+Environment="POSTGRES_DB=immich"
+Secret="immich-db-password,type=env,target=POSTGRES_PASSWORD"
 Network=immich.network

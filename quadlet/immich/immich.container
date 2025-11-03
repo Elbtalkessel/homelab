@@ -1,6 +1,7 @@
 [Unit]
 Description=Immich Server
 Requires=immich-redis.service immich-db.service immich-machine-learning.service
+After=immich-db.service
 
 [Install]
 WantedBy=default.target
@@ -10,14 +11,14 @@ Image=ghcr.io/immich-app/immich-server:release
 ContainerName=immich
 AutoUpdate=registry
 UserNS=keep-id
-GroupAdd=keep-groups
 User=%U:%U
 Volume=/var/mnt/s1/immich:/usr/src/app/upload
 Volume=/etc/localtime:/etc/localtime:ro
-Environment="DB_HOSTNAME=immich-db"
 Environment="REDIS_HOSTNAME=immich-redis"
-EnvironmentFile="%h/homelab/stacks/immich/immich.env"
+Environment="DB_HOSTNAME=immich-db"
+Environment="DB_USERNAME=postgres"
+Environment="DB_DATABASE_NAME=immich"
+Secret="immich-db-password,type=env,target=DB_PASSWORD"
 Network=public.network
 Network=immich.network
 AddDevice=/dev/dri:/dev/dri
-
