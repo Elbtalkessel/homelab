@@ -12,6 +12,8 @@ ContainerName=lidarr
 Volume=lidarr-config.volume:/config
 Volume=/var/mnt/s1/media:/share/Video
 Environment=TZ=Etc/UTC
+Environment=PUID=0
+Environment=PGID=0
 HealthCmd=CMD-SHELL curl --fail http://localhost:8686 || exit 1
 HealthStartPeriod=10s
 HealthInterval=5s

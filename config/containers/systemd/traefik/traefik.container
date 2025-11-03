@@ -21,10 +21,12 @@ PublishPort=80:80
 PublishPort=443:443
 Network=public.network
 Label=traefik.enable=true
+# region dashboard
 Label=traefik.http.routers.dashboard.rule=Host(`traefik.x.home.arpa`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`) || PathPrefix(`/dashboard/`))
 Label=traefik.http.routers.dashboard.entrypoints=websecure
 Label=traefik.http.routers.dashboard.service=api@internal
 Label=traefik.http.routers.dashboard.tls.certresolver=ca
 Label=traefik.http.routers.dashboard.middlewares=auth
 Label=traefik.http.middlewares.auth.basicauth.users=risus:$$apr1$$Qhuh9sKg$$bhKbVV.XLZ2Ycegt/3zeL1
+# endregion dashboard
 

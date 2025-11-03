@@ -40,6 +40,12 @@ certificatesResolvers:
     acme:
       caServer: "https://step-ca:9000/acme/acme/directory"
       email: "pieceof@duck.com"
-      certificatesDuration: 2160
-      httpChallenge:
-        entryPoint: web
+      storage: "acme.json"
+      certificatesDuration: 24
+      tlsChallenge: true
+
+tls:
+  stores:
+    default:
+      defaultGeneratedCert:
+        resolver: ca

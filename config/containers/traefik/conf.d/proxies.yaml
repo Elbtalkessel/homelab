@@ -45,7 +45,7 @@
         "Port" 5055)
 
 	(dict "Service" "prowlarr"
-        "Enable" false
+        "Enable" true
         "Port" 9696)
 
 	(dict "Service" "radarr"

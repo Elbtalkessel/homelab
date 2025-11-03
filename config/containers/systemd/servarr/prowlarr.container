@@ -11,6 +11,8 @@ Image=lscr.io/linuxserver/prowlarr:latest
 ContainerName=prowlarr
 Volume=prowlarr-config.volume:/config
 Environment=TZ=Etc/UTC
+Environment=PUID=0
+Environment=PGID=0
 HealthCmd=CMD-SHELL curl --fail http://localhost:9696 || exit 1
 HealthStartPeriod=10s
 HealthInterval=5s
