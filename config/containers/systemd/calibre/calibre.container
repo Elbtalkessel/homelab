@@ -1,0 +1,19 @@
+[Unit]
+Description=Calibre-Web is a web app that offers a clean and intuitive interface for browsing, reading, and downloading eBooks using a valid Calibre database.
+Documentation=https://github.com/janeczku/calibre-web/wiki
+
+[Install]
+WantedBy=default.target
+
+[Container]
+Image=lscr.io/linuxserver/calibre-web:latest
+AutoUpdate=registry
+ContainerName=calibre
+Volume=calibre-config.volume:/config
+Volume=/var/mnt/s1/books/main:/books
+Environment=TZ=Etc/UTC
+Environment=PUID=0
+Environment=PGID=0
+Environment=DOCKER_MODS=linuxserver/mods:universal-calibre
+Environment=OAUTHLIB_RELAX_TOKEN_SCOPE=1
+Network=public.network

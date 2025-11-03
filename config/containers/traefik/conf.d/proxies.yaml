@@ -2,7 +2,7 @@
 
 {{$proxies := list
   (dict "Service" "calibre"
-        "Enable" false
+        "Enable" true
         "Port" 8083)
 
 	(dict "Service" "filebot"
