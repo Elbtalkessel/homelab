@@ -5,8 +5,9 @@ Description=Adguard Home Server
 WantedBy=default.target
 
 [Container]
-ContainerName=adguard
 Image=docker.io/adguard/adguardhome
+ContainerName=adguard
+AutoUpdate=registry
 Volume=adguard-work.volume:/opt/adguardhome/work
 Volume=adguard-conf.volume:/opt/adguardhome/conf
 PublishPort=192.168.8.130:53:53/tcp
