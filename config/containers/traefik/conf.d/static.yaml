@@ -1,0 +1,29 @@
+---
+http:
+  services:
+    plex:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: http://host.containers.internal:32400
+    cockpit:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: http://host.containers.internal:9090
+
+  routers:
+    plex:
+      rule: "Host(`plex.x.home.arpa`)"
+      entryPoints:
+        - websecure
+      service: plex
+      tls:
+        certresolver: ca
+    cockpit:
+      rule: "Host(`cockpit.x.home.arpa`)"
+      entryPoints:
+        - websecure
+      service: cockpit
+      tls:
+        certresolver: ca

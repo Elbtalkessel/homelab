@@ -1,0 +1,140 @@
+# vim: set filetype=go :
+
+{{$proxies := list
+  (dict "Service" "calibre"
+        "Enable" false
+        "Port" 8083)
+
+	(dict "Service" "dockge"
+        "Enable" false
+	      "Alias" "docker"
+        "Port" 5001)
+
+	(dict "Service" "filebot"
+        "Enable" false
+        "Port" 5452)
+
+	(dict "Service" "gitea"
+        "Enable" false
+        "Port" 3000)
+
+	(dict "Service" "immich"
+        "Enable" true
+	      "Alias" "photos"
+        "Port" 2283)
+
+	(dict "Service" "adminer"
+        "Enable" false
+        "Port" 8080)
+
+	(dict "Service" "stash"
+        "Enable" true
+        "Port" 9999)
+
+	(dict "Service" "vaultwarden"
+        "Enable" false
+        "Alias" "vault"
+        "Port" 80)
+
+	(dict "Service" "lidarr"
+        "Enable" true
+        "Port" 8686)
+
+	(dict "Service" "overseerr"
+        "Enable" false
+        "Port" 5055)
+
+	(dict "Service" "prowlarr"
+        "Enable" false
+        "Port" 9696)
+
+	(dict "Service" "radarr"
+        "Enable" false
+        "Port" 7878)
+
+	(dict "Service" "sonarr"
+        "Enable" false
+        "Port" 8989)
+
+	(dict "Service" "torrent"
+        "Enable" true
+        "Port" 8080)
+
+  (dict "Service" "glances"
+        "Enable" false
+        "HostNetwork" true
+        "Port" 61209)
+
+  (dict "Service" "invidious"
+        "Enable" true
+        "Alias" "yt"
+        "Port" 3000)
+
+  (dict "Service" "notifiarr"
+        "Enable" false
+        "Port" 5454)
+
+  (dict "Service" "adguard"
+        "Enable" true
+        "Port" 80)
+}}
+
+http:
+  middlewares:
+  {{range $proxies}}
+  {{if .Enable}}
+  {{if .SuspendAfter }}
+    {{.Service}}-sablier:
+      plugin:
+        sablier:
+          {{if .Blocking}}
+          blocking:
+            defaultTimeout: 10s
+          {{else}}
+          dynamic:
+            displayName: {{.Service}}
+            refreshFrequency: 5s
+            showDetails: true
+            theme: shuffle
+          {{end}}
+          sablierUrl: http://sablier:10000
+          sessionDuration: {{.SuspendAfter}}
+          names: {{or .Names .Service}}
+  {{end}}
+  {{end}}
+  {{end}}
+
+  services:
+  {{range $proxies}}
+    {{if .Enable}}
+    {{.Service}}:
+      loadBalancer:
+        {{if .HostNetwork}}
+        passHostHeader: true
+        {{end}}
+        servers:
+          {{if .HostNetwork}}
+          - url: http://host.containers.internal:{{.Port}}
+          {{else}}
+          - url: http://{{.Service}}:{{.Port}}
+          {{end}}
+    {{end}}
+  {{end}}
+
+  routers:
+  {{range $proxies}}
+    {{if .Enable}}
+    {{.Service}}:
+      {{$domain := or .Alias .Service}}
+      rule: "Host(`{{$domain}}.x.home.arpa`)"
+      entryPoints:
+        - websecure
+      {{ if .SuspendAfter }}
+      middlewares:
+        - {{.Service}}-sablier@file
+      {{ end }}
+      service: {{.Service}}
+      tls:
+        certresolver: ca
+    {{end}}
+  {{end}}
