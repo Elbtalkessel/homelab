@@ -27,7 +27,7 @@
         "Port" 9999)
 
 	(dict "Service" "vaultwarden"
-        "Enable" false
+        "Enable" true
         "Alias" "vault"
         "Port" 80)
 
