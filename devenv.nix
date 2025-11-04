@@ -51,26 +51,25 @@
       '';
 
       igniter.exec = ''
-        o
-                set -e
+        set -e
 
-                fpath='${config.env.DEVENV_ROOT}/${config.env.BUTANE_FILE}'
-                port='${config.env.IGNITION_PORT}'
-                host='0.0.0.0'
+        fpath='${config.env.DEVENV_ROOT}/${config.env.BUTANE_FILE}'
+        port='${config.env.IGNITION_PORT}'
+        host='0.0.0.0'
 
-                c() { printf "\033[''${1}m''${2}\033[0m"; }
-                addr="http://$(hostname -I | cut --delimiter=' ' --fields=1):''${port}"
-                echo "$(c 90 'Listening on') $(c 32 $host:$port) 🚀"
-                echo "$(c 90 'Run') $(c 32 "${fcos-install-cmd}=$addr /dev/sda")"
-                echo "Or auto-ignite <server-ip>"
+        c() { printf "\033[''${1}m''${2}\033[0m"; }
+        addr="http://$(hostname -I | cut --delimiter=' ' --fields=1):''${port}"
+        echo "$(c 90 'Listening on') $(c 32 $host:$port) 🚀"
+        echo "$(c 90 'Run') $(c 32 "${fcos-install-cmd}=$addr /dev/sda")"
+        echo "Or auto-ignite <server-ip>"
 
-                body() {
-                  butane "$fpath" -d ${config.env.DEVENV_ROOT} --pretty
-                }
+        body() {
+          butane "$fpath" -d ${config.env.DEVENV_ROOT} --pretty
+        }
 
-                while true; do
-                  { echo -e 'HTTP/1.1 200 OK\r\n'; body; } | nc -N -l $host $port
-                done
+        while true; do
+          { echo -e 'HTTP/1.1 200 OK\r\n'; body; } | nc -N -l $host $port
+        done
       '';
     };
 
@@ -79,7 +78,7 @@
       enable = true;
       name = "Check butane";
       entry = "bu-check";
-      files = "coreos/\\.(yaml|yml|bu)$";
+      files = "hosts/\\.(yaml|yml|bu)$";
       pass_filenames = true;
     };
 
