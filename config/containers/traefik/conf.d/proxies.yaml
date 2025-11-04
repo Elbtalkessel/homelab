@@ -10,17 +10,13 @@
         "Port" 5452)
 
 	(dict "Service" "gitea"
-        "Enable" false
+        "Enable" true
         "Port" 3000)
 
 	(dict "Service" "immich"
         "Enable" true
 	      "Alias" "photos"
         "Port" 2283)
-
-	(dict "Service" "adminer"
-        "Enable" false
-        "Port" 8080)
 
 	(dict "Service" "stash"
         "Enable" true
