@@ -10,16 +10,10 @@ Image=docker.gitea.com/gitea:latest
 ContainerName=gitea
 AutoUpdate=registry
 Volume=gitea-data.volume:/data
-Volume=%h/.config/gitea/git/ssh:/data/git/.ssh
-Volume=%h/.config/gitea/gitea/conf:/data/gitea/conf
 Volume=/etc/localtime:/etc/localtime:ro
 Environment=ALLOW_LOCALNETWORKS=true
-Environment=USER_UID=1001
-Environment=USER_GID=1001
-UIDMap=0:1001:1
-UIDMap=1001:1001:1
-GIDMap=0:1001:1
-GIDMap=1001:1001:1
+Environment=USER_UID=1000
+Environment=USER_GID=1000
 Network=public.network
 PublishPort=127.0.0.1:2201:22
 

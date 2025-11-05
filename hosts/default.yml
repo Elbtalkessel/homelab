@@ -13,7 +13,9 @@ passwd:
       groups:
         - wheel
         - sudo
-        - docker
+    - name: git
+      home_dir: /var/home/git
+      shell: /bin/bash
 
 storage:
   files:
@@ -57,6 +59,39 @@ storage:
       contents:
         inline: |
           net.ipv4.ip_unprivileged_port_start=53
+
+    # TODO: use ansible
+    # TODO(setup): manual setup required:
+    #   As git user, create ssh key pair and authorize it for the risus user.
+    #   Alternatively you can run:
+    #     podman system connection add risus --identity ~/.ssh/id_ed25519 ssh://risus@localhost
+    #   Part of gitea ssh integration.
+    - path: /var/home/git/.config/containers/podman-connections.json
+      mode: 0644
+      contents:
+        inline: |
+          {"Connection":{"Default":"risus","Connections":{"risus":{"URI":"ssh://risus@localhost:22/run/user/1001/podman/podman.sock","Identity":"/var/home/git/.ssh/id_ed25519"}}},"Farm":{}}
+
+    # TODO: use ansible
+    - path: /var/home/git/gitea-shell
+      mode: 0700
+      contents:
+        inline: |
+          #!/usr/bin/env sh
+          # Git user login shell for SSH Container passthrough.
+          # More: https://docs.gitea.com/next/installation/install-with-docker#docker-shell-with-authorizedkeyscommand
+          /usr/bin/podman --connection risus \
+            exec -i -u git --env SSH_ORIGINAL_COMMAND="$SSH_ORIGINAL_COMMAND" \
+            gitea sh "$@"
+
+    # TODO: use ansible to create and restart sshd after.
+    - path: /etc/ssh/sshd_config.d/gitea.conf
+      mode: 0600
+      contents:
+        inline: |
+          Match User git
+            AuthorizedKeysCommandUser git
+            AuthorizedKeysCommand /usr/bin/podman --connection risus exec -i -u git gitea /usr/local/bin/gitea keys -c /data/gitea/conf/app.ini -e git -u %u -t %t -k %k
 
   directories:
     - path: /mnt/s1
@@ -104,7 +139,7 @@ systemd:
         WantedBy=multi-user.target
 
     - name: docker.socket
-      enabled: true
+      enabled: false
       contents: |
         [Unit]
         Description=Docker Socket for the API
