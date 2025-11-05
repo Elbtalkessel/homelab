@@ -2,6 +2,7 @@
 Description=An open source alternative front-end to YouTube
 Documentation=https://docs.invidious.io
 Requires=invidious-db.service
+Wants=invidious-companion.service
 
 [Install]
 WantedBy=default.target
