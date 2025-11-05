@@ -1,0 +1,13 @@
+[Unit]
+Description=Companion for Invidious which handle all the video stream retrieval from YouTube servers
+Documentation=https://github.com/iv-org/invidious-companion/wiki
+
+[Container]
+Image=quay.io/invidious/invidious-companion:latest
+ContainerName=invidious-companion
+Environment=SERVER_SECRET_KEY=ohngu1Xifahchiel
+ReadOnly=true
+# Cached YouTube library, for some reason...
+Volume=invidious-companion-cache.volume:/var/tmp/youtubei.js
+Network=invidious.network
+

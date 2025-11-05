@@ -1,0 +1,14 @@
+[Unit]
+Description=Invidious database service
+
+[Container]
+Image=docker.io/library/postgres:14
+ContainerName=invidious-db
+Volume=invidious-db-data.volume:/var/lib/postgresql/data
+Volume=%h/.config/invidious/db/config:/config:ro
+Volume=%h/.config/invidious/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+Environment=POSTGRES_DB=invidious
+Environment=POSTGRES_USER=invidious
+Environment=POSTGRES_PASSWORD=invidious
+HealthCmd=CMD-SHELL pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+Network=invidious.network

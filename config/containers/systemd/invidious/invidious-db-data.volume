@@ -1,0 +1,5 @@
+[Unit]
+Description=Invidious database data volume
+
+[Volume]
+VolumeName=invidious-db-data
