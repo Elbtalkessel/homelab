@@ -9,6 +9,7 @@ WantedBy=default.target
 
 [Container]
 Image=quay.io/invidious/invidious:latest
+AutoUpdate=registry
 ContainerName=invidious
 Environment=INVIDIOUS_CONFIG_FILE=/invidious/config.yml
 Volume=%h/.config/containers/invidious/config.yml:/invidious/config.yml

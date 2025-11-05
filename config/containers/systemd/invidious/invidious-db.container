@@ -3,6 +3,7 @@ Description=Invidious database service
 
 [Container]
 Image=docker.io/library/postgres:14
+AutoUpdate=registry
 ContainerName=invidious-db
 Volume=invidious-db-data.volume:/var/lib/postgresql/data
 Volume=%h/.config/containers/invidious/db/config:/config:ro

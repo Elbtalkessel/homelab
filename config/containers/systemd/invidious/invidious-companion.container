@@ -4,6 +4,7 @@ Documentation=https://github.com/iv-org/invidious-companion/wiki
 
 [Container]
 Image=quay.io/invidious/invidious-companion:latest
+AutoUpdate=registry
 ContainerName=invidious-companion
 Environment=SERVER_SECRET_KEY=ohngu1Xifahchiel
 ReadOnly=true
