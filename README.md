@@ -38,4 +38,8 @@ A set of quadlet services
 - Invidious
   - Update companion to use yaml configs instead of env var.
   - How can we store secrets (such as companion key) not in plain text?
+  - Continue work on updating UI and change Image= to custom one.
 - Backups: borg or something similar. Backup to an NFS mount, preferrable with UI.
+- Disable sudo for risus.
+- Adguard + Traefik
+  - Pass correct client ip, https://github.com/AdguardTeam/AdGuardHome/wiki/FAQ#how-to-configure-a-reverse-proxy-server-for-adguard-home
