@@ -41,7 +41,7 @@ certificatesResolvers:
       caServer: "https://step-ca:9000/acme/acme/directory"
       email: "pieceof@duck.com"
       storage: "acme.json"
-      certificatesDuration: 24
+      # default certificate duration 90 days, renewing starts 30 days before.
       tlsChallenge: true
 
 tls:
