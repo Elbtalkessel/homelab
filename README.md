@@ -43,3 +43,5 @@ A set of quadlet services
 - Disable sudo for risus.
 - Adguard + Traefik
   - Pass correct client ip, https://github.com/AdguardTeam/AdGuardHome/wiki/FAQ#how-to-configure-a-reverse-proxy-server-for-adguard-home
+- Systemd:
+  - Ensure systemd-timesyncd.service is enabled and started

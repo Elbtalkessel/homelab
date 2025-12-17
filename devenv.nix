@@ -24,7 +24,7 @@
       '';
 
       syncup.exec = ''
-        rsync --del -Parvz config/containers/ ${ssh-uri}:~/.config/containers/
+        rsync --del -Parvz ${config.env.DEVENV_ROOT}/config/containers/ ${ssh-uri}:~/.config/containers/
       '';
 
       bu-check.exec = ''
