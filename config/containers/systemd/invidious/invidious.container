@@ -13,7 +13,7 @@ AutoUpdate=registry
 ContainerName=invidious
 Environment=INVIDIOUS_CONFIG_FILE=/invidious/config.yml
 Volume=%h/.config/containers/invidious/config.yml:/invidious/config.yml
-HealthCmd=CMD-SHELL wget -nv --tries=1 --spider http://127.0.0.1:3000/api/v1/trending || exit 1
+HealthCmd=CMD-SHELL wget -nv --tries=1 --spider http://127.0.0.1:3000/search || exit 1
 HealthInterval=30s
 HealthStartupTimeout=5s
 HealthRetries=2
