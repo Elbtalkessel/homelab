@@ -6,6 +6,9 @@ Wants=torrent.service
 [Install]
 WantedBy=default.target
 
+[Service]
+Restart=on-failure
+
 [Container]
 Image=lscr.io/linuxserver/sonarr:latest
 AutoUpdate=registry
