@@ -112,7 +112,7 @@ http:
     {{if .Enable}}
     {{.Service}}:
       {{$domain := or .Alias .Service}}
-      rule: "Host(`{{$domain}}.x.home.arpa`) || Host(`{{$domain}}.coreos.blowfish-gray.ts.net`)"
+      rule: "Host(`{{$domain}}.x.home.arpa`)"
       entryPoints:
         - websecure
       {{ if .SuspendAfter }}
