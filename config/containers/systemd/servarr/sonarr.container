@@ -7,7 +7,10 @@ Wants=torrent.service
 WantedBy=default.target
 
 [Service]
-Restart=on-failure
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+StartLimitIntervalSec=120
 
 [Container]
 Image=lscr.io/linuxserver/sonarr:latest

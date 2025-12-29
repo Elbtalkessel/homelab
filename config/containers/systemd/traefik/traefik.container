@@ -6,6 +6,12 @@ Requires=podman.socket step-ca.service
 [Install]
 WantedBy=default.target
 
+[Service]
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
 [Container]
 ContainerName=traefik
 Image=docker.io/library/traefik:v3.5

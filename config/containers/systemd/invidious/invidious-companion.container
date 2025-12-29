@@ -2,6 +2,12 @@
 Description=Companion for Invidious which handle all the video stream retrieval from YouTube servers
 Documentation=https://github.com/iv-org/invidious-companion/wiki
 
+[Service]
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
 [Container]
 Image=quay.io/invidious/invidious-companion:latest
 AutoUpdate=registry

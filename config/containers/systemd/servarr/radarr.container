@@ -6,6 +6,12 @@ Wants=torrent.service
 [Install]
 WantedBy=default.target
 
+[Service]
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
 [Container]
 Image=lscr.io/linuxserver/radarr:latest
 AutoUpdate=registry

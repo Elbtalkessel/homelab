@@ -7,6 +7,12 @@ Wants=invidious-companion.service
 [Install]
 WantedBy=default.target
 
+[Service]
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
 [Container]
 Image=quay.io/invidious/invidious:latest
 AutoUpdate=registry

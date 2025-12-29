@@ -4,6 +4,12 @@ Description=qBitTorrent
 [Install]
 WantedBy=default.target
 
+[Service]
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
 [Container]
 Image=lscr.io/linuxserver/qbittorrent:latest
 AutoUpdate=registry

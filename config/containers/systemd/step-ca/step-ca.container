@@ -5,6 +5,12 @@ After=network-online.target
 [Install]
 WantedBy=default.target
 
+[Service]
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
 [Container]
 ContainerName=step-ca
 Image=docker.io/smallstep/step-ca

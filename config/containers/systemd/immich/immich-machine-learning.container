@@ -1,6 +1,12 @@
 [Unit]
 Description=Immich Server Machine Learning
 
+[Service]
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
 [Container]
 ContainerName=immich-machine-learning
 Image=ghcr.io/immich-app/immich-machine-learning:release

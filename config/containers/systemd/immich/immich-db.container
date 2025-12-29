@@ -1,6 +1,12 @@
 [Unit]
 Description=Immich Server Database
 
+[Service]
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
 [Container]
 Image=ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
 ContainerName=immich-db

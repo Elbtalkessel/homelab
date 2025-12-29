@@ -5,6 +5,12 @@ Documentation=https://github.com/janeczku/calibre-web/wiki
 [Install]
 WantedBy=default.target
 
+[Service]
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
 [Container]
 Image=lscr.io/linuxserver/calibre-web:latest
 AutoUpdate=registry

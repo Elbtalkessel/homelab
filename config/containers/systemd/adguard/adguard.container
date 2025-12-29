@@ -4,6 +4,12 @@ Description=Adguard Home Server
 [Install]
 WantedBy=default.target
 
+[Service]
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
 [Container]
 Image=docker.io/adguard/adguardhome
 ContainerName=adguard

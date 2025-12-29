@@ -5,6 +5,12 @@ Documentation=https://docs.overseerr.dev/
 [Install]
 WantedBy=default.target
 
+[Service]
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
 [Container]
 Image=docker.io/sctx/overseerr:latest
 AutoUpdate=registry
