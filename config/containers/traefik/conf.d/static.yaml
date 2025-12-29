@@ -14,14 +14,14 @@ http:
 
   routers:
     plex:
-      rule: "Host(`plex.x.home.arpa`)"
+      rule: "Host(`plex.x.home.arpa`) || Host(`plex.coreos.blowfish-gray.ts.net`)"
       entryPoints:
         - websecure
       service: plex
       tls:
         certresolver: ca
     cockpit:
-      rule: "Host(`cockpit.x.home.arpa`)"
+      rule: "Host(`cockpit.x.home.arpa`) || Host(`cockpit.coreos.blowfish-gray.ts.net`)"
       entryPoints:
         - websecure
       service: cockpit
