@@ -1,0 +1,12 @@
+{
+  "Connection": {
+    "Default": "{{ default_username }}",
+    "Connections": {
+      "{{ default_username }}": {
+        "URI": "ssh://{{ default_username }}@localhost:22/run/user/1001/podman/podman.sock",
+        "Identity": "/var/home/{{ git_username }}/.ssh/id_ed25519"
+      }
+    }
+  },
+  "Farm": {}
+}
