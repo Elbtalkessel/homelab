@@ -1,12 +1,12 @@
 [Unit]
 Description=Sablier Scheduler
 Requires=podman.socket
+StartLimitIntervalSec=120
+StartLimitBurst=5
 
 [Service]
 Restart=on-abnormal
 RestartSec=15
-StartLimitBurst=5
-StartLimitIntervalSec=120
 
 [Container]
 ContainerName=sablier

@@ -2,6 +2,8 @@
 Description=Traefik reverse proxy
 After=network-online.target
 Requires=podman.socket step-ca.service
+StartLimitBurst=5
+StartLimitIntervalSec=120
 
 [Install]
 WantedBy=default.target
@@ -9,8 +11,6 @@ WantedBy=default.target
 [Service]
 Restart=on-abnormal
 RestartSec=15
-StartLimitBurst=5
-StartLimitIntervalSec=120
 
 [Container]
 ContainerName=traefik

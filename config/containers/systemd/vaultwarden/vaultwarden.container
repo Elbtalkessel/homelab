@@ -1,6 +1,8 @@
 [Unit]
 Description=An alternative server implementation of the Bitwarden Client API
 Documentation=https://github.com/dani-garcia/vaultwarden/wiki
+StartLimitBurst=5
+StartLimitIntervalSec=120
 
 [Install]
 WantedBy=default.target
@@ -8,8 +10,6 @@ WantedBy=default.target
 [Service]
 Restart=on-abnormal
 RestartSec=15
-StartLimitBurst=5
-StartLimitIntervalSec=120
 
 StartLimitIntervalSec=120
 [Container]

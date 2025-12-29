@@ -3,6 +3,8 @@ Description=An open source alternative front-end to YouTube
 Documentation=https://docs.invidious.io
 Requires=invidious-db.service
 Wants=invidious-companion.service
+StartLimitBurst=5
+StartLimitIntervalSec=120
 
 [Install]
 WantedBy=default.target
@@ -10,8 +12,6 @@ WantedBy=default.target
 [Service]
 Restart=on-abnormal
 RestartSec=15
-StartLimitBurst=5
-StartLimitIntervalSec=120
 
 [Container]
 Image=quay.io/invidious/invidious:latest

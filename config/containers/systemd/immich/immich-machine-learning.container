@@ -1,11 +1,11 @@
 [Unit]
 Description=Immich Server Machine Learning
+StartLimitBurst=5
+StartLimitIntervalSec=120
 
 [Service]
 Restart=on-abnormal
 RestartSec=15
-StartLimitBurst=5
-StartLimitIntervalSec=120
 
 [Container]
 ContainerName=immich-machine-learning

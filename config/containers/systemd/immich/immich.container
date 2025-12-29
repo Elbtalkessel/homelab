@@ -2,6 +2,8 @@
 Description=Immich Server
 Requires=immich-redis.service immich-db.service immich-machine-learning.service
 After=immich-db.service
+StartLimitBurst=5
+StartLimitIntervalSec=120
 
 [Install]
 WantedBy=default.target
@@ -9,8 +11,6 @@ WantedBy=default.target
 [Service]
 Restart=on-abnormal
 RestartSec=15
-StartLimitBurst=5
-StartLimitIntervalSec=120
 
 [Container]
 Image=ghcr.io/immich-app/immich-server:release

@@ -1,11 +1,11 @@
 [Unit]
 Description=Invidious database service
+StartLimitBurst=5
+StartLimitIntervalSec=120
 
 [Service]
 Restart=on-abnormal
 RestartSec=15
-StartLimitBurst=5
-StartLimitIntervalSec=120
 
 [Container]
 Image=docker.io/library/postgres:14
