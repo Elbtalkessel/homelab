@@ -1,7 +1,7 @@
 [Unit]
 Description=Traefik reverse proxy
-After=network-online.target
-Requires=podman.socket step-ca.service
+After=http.socket https.socket
+Requires=http.socket https.socket step-ca.service
 StartLimitBurst=5
 StartLimitIntervalSec=120
 
@@ -11,6 +11,10 @@ WantedBy=default.target
 [Service]
 Restart=on-abnormal
 RestartSec=15
+# Using socket activation from this example:
+# https://github.com/eriksjolund/podman-traefik-socket-activation/tree/main/examples/example1
+# Required to get client's real ip
+Sockets=http.socket https.socket
 
 [Container]
 ContainerName=traefik
@@ -23,8 +27,6 @@ Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro,z
 Volume=%h/.config/containers/traefik/conf.d:/etc/traefik/conf.d:ro
 Volume=%h/.config/containers/traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro
 Volume=step-ca-certs.volume:/certs:ro,z
-PublishPort=80:80
-PublishPort=443:443
 Network=public.network
 Label=traefik.enable=true
 # region dashboard
@@ -35,4 +37,5 @@ Label=traefik.http.routers.dashboard.tls.certresolver=ca
 Label=traefik.http.routers.dashboard.middlewares=auth
 Label=traefik.http.middlewares.auth.basicauth.users=risus:$$apr1$$Qhuh9sKg$$bhKbVV.XLZ2Ycegt/3zeL1
 # endregion dashboard
-
+Notify=true
+SecurityLabelDisable=true
