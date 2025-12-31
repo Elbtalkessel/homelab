@@ -63,6 +63,10 @@
   (dict "Service" "adguard"
         "Enable" true
         "Port" 80)
+
+  (dict "Service" "whoami"
+        "Enable" true
+        "Port" 80)
 }}
 
 http:

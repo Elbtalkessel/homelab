@@ -1,0 +1,18 @@
+[Unit]
+Description=Whoami testing service
+After=network-online.target
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/traefik/whoami
+AutoUpdate=registry
+ContainerName=whoami
+Network=public.network
