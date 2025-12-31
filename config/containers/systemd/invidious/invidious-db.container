@@ -18,4 +18,5 @@ Environment=POSTGRES_DB=invidious
 Environment=POSTGRES_USER=invidious
 Environment=POSTGRES_PASSWORD=invidious
 HealthCmd=CMD-SHELL pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+Notify=healthy
 Network=invidious.network
