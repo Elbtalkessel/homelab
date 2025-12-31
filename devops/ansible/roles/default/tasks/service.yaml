@@ -1,0 +1,11 @@
+---
+- name: Enable container updates.
+  ansible.builtin.service:
+    name: podman-auto-update.timer
+    enabled: true
+
+- name: Enable time sync.
+  ansible.builtin.service:
+    name: systemd-timesyncd
+    enabled: true
+    state: started
