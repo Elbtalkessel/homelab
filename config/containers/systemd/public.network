@@ -3,5 +3,4 @@ Description=Public Network
 
 [Network]
 NetworkName=public
-Options=isolate=true
-Internal=true
+Internal=false

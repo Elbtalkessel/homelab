@@ -17,5 +17,5 @@ A set of quadlet services
   - Continue work on updating UI and change Image= to custom one.
 - Backups: borg or something similar. Backup to an NFS mount, preferrable with UI.
 - Disable sudo for risus.
-- Adguard + Traefik
-  - Pass correct client ip, https://github.com/AdguardTeam/AdGuardHome/wiki/FAQ#how-to-configure-a-reverse-proxy-server-for-adguard-home
+- Automate symlinking `ln -s /var/home/risus/.config/containers/systemd/https.socket /var/home/risus/.config/systemd/user`,
+  or update the `syncup` script.
