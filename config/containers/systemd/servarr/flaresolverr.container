@@ -1,0 +1,25 @@
+[Unit]
+Description=FlareSolverr is a proxy server to bypass Cloudflare and DDoS-GUARD protection
+Documentation=https://github.com/FlareSolverr/FlareSolverr
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+# Default Port 8191
+Image=ghcr.io/flaresolverr/flaresolverr:latest
+AutoUpdate=registry
+ContainerName=flaresolverr
+Environment=TZ=Etc/UTC
+Environment=LOG_LEVEL=info
+Environment=LOG_FILE=none
+Environment=LOG_HTML=none
+Environment=CAPTCHA_SOLVER=none
+Volume=flaresolverr-config.volume:/config
+Network=public.network
