@@ -12,14 +12,22 @@ Restart=on-abnormal
 RestartSec=15
 
 [Container]
-Image=docker.gitea.com/gitea:latest
 ContainerName=gitea
+Image=docker.gitea.com/gitea:latest
 AutoUpdate=registry
-Volume=gitea-data.volume:/data
-Volume=/etc/localtime:/etc/localtime:ro
+# env
 Environment=ALLOW_LOCALNETWORKS=true
 Environment=USER_UID=1000
 Environment=USER_GID=1000
+# vol
+Volume=gitea-data.volume:/data
+Volume=/etc/localtime:/etc/localtime:ro
+# chk
+HealthCmd=CMD-SHELL curl --fail --silent http://localhost:3000/api/healthz >/dev/null || exit 1
+HealthStartPeriod=5s
+HealthInterval=5s
+HealthStartupTimeout=5s
+HealthRetries=5
+# net
 Network=public.network
 PublishPort=127.0.0.1:2201:22
-

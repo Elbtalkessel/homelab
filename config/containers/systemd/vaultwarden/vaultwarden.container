@@ -11,11 +11,20 @@ WantedBy=default.target
 Restart=on-abnormal
 RestartSec=15
 
-StartLimitIntervalSec=120
 [Container]
-Image=docker.io/vaultwarden/server:latest
 ContainerName=vaultwarden
+Image=docker.io/vaultwarden/server:latest
+AutoUpdate=registry
+# env
 Environment=DOMAIN=https://vault.x.home.arpa
 Secret=vaultwarden-admin-token,type=env,target=ADMIN_TOKEN
+# vol
 Volume=vaultwarden.volume:/data
+# chk
+HealthCmd=CMD-SHELL curl --fail --silent http://localhost >/dev/null || exit 1
+HealthStartPeriod=5s
+HealthInterval=5s
+HealthStartupTimeout=5s
+HealthRetries=5
+# net
 Network=public.network
