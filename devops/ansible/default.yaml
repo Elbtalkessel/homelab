@@ -1,0 +1,7 @@
+---
+- name: (Re)deploy coreos
+  hosts: coreos
+  become: true
+  become_user: root
+  roles:
+    - roles/default

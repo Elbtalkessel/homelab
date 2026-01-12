@@ -1,0 +1,29 @@
+[Unit]
+Description=Smart PVR for newsgroup and bittorrent users to manage and automatically download TV episodes
+Documentation=https://wiki.servarr.com/sonarr
+Wants=torrent.service
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=lscr.io/linuxserver/sonarr:latest
+AutoUpdate=registry
+ContainerName=sonarr
+Volume=sonarr-config.volume:/config
+Volume=/var/mnt/s1/media:/share/Video
+Environment=TZ=Etc/UTC
+Environment=PUID=0
+Environment=PGID=0
+HealthCmd=CMD-SHELL curl --fail http://localhost:8989 || exit 1
+HealthStartPeriod=10s
+HealthInterval=5s
+HealthStartupTimeout=5s
+HealthRetries=5
+Network=public.network

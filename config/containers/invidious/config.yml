@@ -1,0 +1,33 @@
+---
+db:
+  dbname: invidious
+  user: invidious
+  password: invidious
+  host: invidious-db
+  port: 5432
+check_tables: true
+
+invidious_companion:
+  # URL used for the internal communication between invidious and invidious
+  # companion.
+  # There is no need to change that except if Invidious companion does not run
+  # on the same docker compose file.
+  - private_url: "http://invidious-companion:8282/companion"
+
+# IT is NOT recommended to use the same key as HMAC KEY. Generate a new key!
+# Use the key generated in the 2nd step
+invidious_companion_key: "ohngu1Xifahchiel"
+
+port: 3000
+external_port: 443
+domain: yt.x.home.arpa
+https_only: true
+statistics_enabled: true
+
+# Use the key generated in the 2nd step
+hmac_key: "ACh4Raet1hah0vuN"
+
+# Features
+captcha_enabled: false
+admins: ["risus"]
+enable_user_notifications: false

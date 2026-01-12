@@ -1,0 +1,191 @@
+---
+variant: fcos
+version: 1.6.0
+
+passwd:
+  users:
+    - name: risus
+      home_dir: /var/home/risus
+      shell: /bin/bash
+      ssh_authorized_keys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC7ulI5D34Y49wPgraM2iHLJHYzKBlJaB1akgibNJR1y risus@omen
+      password_hash: $y$j9T$6lwjsigqkbzVyO6AOXzjU1$ApOE5zNIQgEmlAO7dwbAojliR/bNdFOINwWG14kT6Y1
+      groups:
+        - wheel
+        - sudo
+    - name: git
+      home_dir: /var/home/git
+      shell: /bin/bash
+
+storage:
+  files:
+    - path: /etc/hostname
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: coreos
+
+    - path: /etc/zincati/config.d/90-disable-auto-updates.toml
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          [updates]
+          enabled = false
+
+    - path: /etc/systemd/system/rpm-ostree-countme.timer.d/40-weekly.conf
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          [Timer]
+          OnCalendar=weekly
+
+    - path: /etc/cockpit/cockpit.conf
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          [WebService]
+          Origins = https://cockpit.x.home.arpa wss://cockpit.x.home.arpa
+          ProtocolHeader = X-Forwarded-Proto
+          ForwardedForHeader = X-Forwarded-For
+          AllowUnencrypted = true
+          ClientCertAuthentication = false
+
+    - path: /etc/sysctl.d/98-unpriv-port.conf
+      mode: 0777
+      overwrite: true
+      contents:
+        inline: |
+          net.ipv4.ip_unprivileged_port_start=53
+
+  directories:
+    - path: /mnt/s1
+      mode: 0755
+
+  disks:
+    - device: /dev/sdb
+      wipe_table: false
+      partitions:
+        - number: 1
+          label: var
+
+  filesystems:
+    - path: /var
+      device: /dev/disk/by-partlabel/var
+      format: ext4
+      label: var
+      wipe_filesystem: false
+      with_mount_unit: true
+      mount_options:
+        - discard
+        - noatime
+        - nodiratime
+        - commit=60
+
+systemd:
+  units:
+    - name: rpm-ostree-rebase-to-ucore.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Rebase to uCore
+        Wants=network-online.target
+        After=network-online.target
+        Before=zincati.service
+        ConditionPathExists=!/var/lib/rpm-ostree-rebase-to-ucore.stamp
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/bin/rpm-ostree rebase --reboot ostree-unverified-registry:ghcr.io/ublue-os/ucore:stable
+        ExecStart=/usr/bin/touch /var/lib/rpm-ostree-rebase-to-ucore.stamp
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: docker.socket
+      enabled: false
+      contents: |
+        [Unit]
+        Description=Docker Socket for the API
+        PartOf=docker.service
+
+        [Socket]
+        ListenStream=/run/docker.sock
+        SocketMode=0660
+        SocketUser=root
+        SocketGroup=docker
+
+        [Install]
+        WantedBy=sockets.target
+
+    # Calibre,Video,Immich,xyz
+    - name: var-mnt-s1-books.mount
+      enabled: true
+      contents: |
+        [Unit]
+        After=network-online.target nss-lookup.target
+        Wants=network-online.target
+
+        [Mount]
+        What=s1.home.arpa:/volume1/Calibre
+        Where=/var/mnt/s1/books
+        Type=nfs
+        Options=_netdev,vers=4,hard,noatime,x-systemd.mount-timeout=30
+        TimeoutSec=30
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: var-mnt-s1-media.mount
+      enabled: true
+      contents: |
+        [Unit]
+        After=network-online.target nss-lookup.target
+        Wants=network-online.target
+
+        [Mount]
+        What=s1.home.arpa:/volume1/Video
+        Where=/var/mnt/s1/media
+        Type=nfs
+        Options=_netdev,vers=4,hard,noatime,x-systemd.mount-timeout=30
+        TimeoutSec=30
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: var-mnt-s1-immich.mount
+      enabled: true
+      contents: |
+        [Unit]
+        After=network-online.target nss-lookup.target
+        Wants=network-online.target
+
+        [Mount]
+        What=s1.home.arpa:/volume1/Immich
+        Where=/var/mnt/s1/immich
+        Type=nfs
+        Options=_netdev,vers=4,hard,noatime,x-systemd.mount-timeout=30
+        TimeoutSec=30
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: var-mnt-s1-xyz.mount
+      enabled: true
+      contents: |
+        [Unit]
+        After=network-online.target nss-lookup.target
+        Wants=network-online.target
+
+        [Mount]
+        What=s1.home.arpa:/volume1/xyz
+        Where=/var/mnt/s1/xyz
+        Type=nfs
+        Options=_netdev,vers=4,hard,noatime,x-systemd.mount-timeout=30
+        TimeoutSec=30
+
+        [Install]
+        WantedBy=multi-user.target

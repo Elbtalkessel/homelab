@@ -1,0 +1,5 @@
+[Unit]
+Description=Flaresolverr Service Config
+
+[Volume]
+VolumeName=flaresolverr-config

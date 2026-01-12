@@ -1,0 +1,6 @@
+[Unit]
+Description=Public Network
+
+[Network]
+NetworkName=public
+Internal=false

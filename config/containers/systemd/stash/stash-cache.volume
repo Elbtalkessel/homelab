@@ -1,0 +1,5 @@
+[Unit]
+Description=Stashapp cache directory
+
+[Volume]
+VolumeName=stash_cache

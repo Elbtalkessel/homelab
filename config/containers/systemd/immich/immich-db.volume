@@ -1,0 +1,5 @@
+[Unit]
+Description=Immich Database Data
+
+[Volume]
+VolumeName=immich_db

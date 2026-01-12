@@ -1,0 +1,5 @@
+[Unit]
+Description=qBitTorrent Configuration
+
+[Volume]
+VolumeName=qbittorrent-config

@@ -1,0 +1,3 @@
+Match User {{ git_username }}
+  AuthorizedKeysCommandUser {{ git_username }}
+  AuthorizedKeysCommand /usr/bin/podman --connection {{ default_username }} exec -i -u {{ git_username }} gitea /usr/local/bin/gitea keys -c /data/gitea/conf/app.ini -e git -u %u -t %t -k %k

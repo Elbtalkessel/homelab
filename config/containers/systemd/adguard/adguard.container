@@ -1,0 +1,21 @@
+[Unit]
+Description=Adguard Home Server
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/adguard/adguardhome
+ContainerName=adguard
+AutoUpdate=registry
+Volume=adguard-work.volume:/opt/adguardhome/work
+Volume=adguard-conf.volume:/opt/adguardhome/conf
+PublishPort=192.168.8.130:53:53/tcp
+PublishPort=192.168.8.130:53:53/udp
+Network=public.network

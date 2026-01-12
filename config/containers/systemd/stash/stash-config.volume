@@ -1,0 +1,5 @@
+[Unit]
+Description=Stashapp config directory
+
+[Volume]
+VolumeName=stash_config

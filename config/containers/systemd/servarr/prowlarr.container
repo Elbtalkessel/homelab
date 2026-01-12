@@ -1,0 +1,28 @@
+[Unit]
+Description=The Ultimate Indexer Manager
+Documentation=https://wiki.servarr.com/prowlarr
+Wants=torrent.service
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=lscr.io/linuxserver/prowlarr:latest
+AutoUpdate=registry
+ContainerName=prowlarr
+Volume=prowlarr-config.volume:/config
+Environment=TZ=Etc/UTC
+Environment=PUID=0
+Environment=PGID=0
+HealthCmd=CMD-SHELL curl --fail http://localhost:9696 || exit 1
+HealthStartPeriod=10s
+HealthInterval=5s
+HealthStartupTimeout=5s
+HealthRetries=5
+Network=public.network

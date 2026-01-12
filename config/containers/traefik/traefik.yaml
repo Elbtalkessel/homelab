@@ -1,0 +1,51 @@
+---
+api:
+  insecure: false
+  dashboard: true
+
+log:
+  level: INFO
+
+providers:
+  docker:
+    exposedByDefault: false
+    network: public
+  file:
+    directory: /etc/traefik/conf.d
+    watch: false
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: ca
+
+experimental:
+  fastProxy: {}
+  plugins:
+    sablier:
+      modulename: github.com/sablierapp/sablier
+      version: v1.10.1
+
+certificatesResolvers:
+  ca:
+    acme:
+      caServer: "https://step-ca:9000/acme/acme/directory"
+      email: "pieceof@duck.com"
+      storage: "acme.json"
+      # default certificate duration 90 days, renewing starts 30 days before.
+      tlsChallenge: true
+
+tls:
+  stores:
+    default:
+      defaultGeneratedCert:
+        resolver: ca

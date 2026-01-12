@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# Git user login shell for SSH Container passthrough.
+/usr/bin/podman --connection "{{ default_username }}" \
+  exec -i -u git --env SSH_ORIGINAL_COMMAND="$SSH_ORIGINAL_COMMAND" \
+  gitea sh "$@"

@@ -1,0 +1,38 @@
+[Unit]
+Description=Stashapp Server
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+ContainerName=stash
+Image=docker.io/stashapp/stash:latest
+AutoUpdate=registry
+# env
+Environment="STASH_STASH=/data"
+Environment="STASH_GENERATED=/generated"
+Environment="STASH_METADATA=/metadata"
+Environment="STASH_CACHE=/cache"
+Environment="STASH_CONFIG=/root/.stash"
+Environment="STASH_PORT=9999"
+# vol
+Volume=/etc/localtime:/etc/localtime:ro
+Volume=/var/mnt/s1/xyz:/data
+Volume=stash-generated.volume:/generated
+Volume=stash-metadata.volume:/metadata
+Volume=stash-cache.volume:/cache
+Volume=stash-config.volume:/root/.stash
+# chk
+HealthCmd=CMD-SHELL wget http://localhost:9999 -qO /dev/null || exit 1
+HealthStartPeriod=5s
+HealthInterval=5s
+HealthStartupTimeout=5s
+HealthRetries=5
+# net
+Network=public.network

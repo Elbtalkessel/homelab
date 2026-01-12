@@ -1,0 +1,5 @@
+[Unit]
+Description=Cache storage for the immich machine learing server
+
+[Volume]
+VolumeName=immich_model-cache
