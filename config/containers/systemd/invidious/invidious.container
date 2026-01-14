@@ -10,7 +10,9 @@ StartLimitIntervalSec=120
 WantedBy=default.target
 
 [Service]
-Restart=on-abnormal
+# on-failure covers both abnormal (killed) and failure (non-zero exit),
+# the latest may happen if database doesn't repond.
+Restart=on-failure
 RestartSec=15
 
 [Container]
