@@ -15,7 +15,7 @@
 
 	(dict "Service" "immich"
         "Enable" true
-	      "Alias" "photos"
+				"Alias" "photos"
         "Port" 2283)
 
 	(dict "Service" "stash"
@@ -71,6 +71,22 @@
 
 http:
   middlewares:
+    allowomen:
+      headers:
+        accessControlAllowCredentials: true
+        accessControlAllowOriginList: "https://omen.home.arpa"
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+          - HEAD
+          - PATCH
+          - PUT
+          - DELETE
+        accessControlAllowHeaders:
+          - User-Agent
+          - Authorization
+          - Content-Type
   {{range $proxies}}
   {{if .Enable}}
   {{if .SuspendAfter }}
@@ -123,6 +139,10 @@ http:
       middlewares:
         - {{.Service}}-sablier@file
       {{ end }}
+      {{if eq .Service "stash"}}
+      middlewares:
+        - allowomen
+      {{end}}
       service: {{.Service}}
       tls:
         certresolver: ca
