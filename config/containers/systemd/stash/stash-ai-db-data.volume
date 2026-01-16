@@ -1,0 +1,5 @@
+[Unit]
+Description=Stash AI database data
+
+[Volume]
+VolumeName=stash-ai-db-data

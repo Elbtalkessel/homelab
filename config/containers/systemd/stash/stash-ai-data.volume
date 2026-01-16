@@ -1,0 +1,5 @@
+[Unit]
+Description=Stash AI data and plugins
+
+[Volume]
+VolumeName=stash-ai-data

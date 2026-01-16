@@ -1,0 +1,20 @@
+[Unit]
+Description=Stash AI Database
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/pgvector/pgvector:pg16
+AutoUpdate=registry
+ContainerName=stash-ai-db
+Volume=stash-ai-db-data.volume:/var/lib/postgresql/data
+Environment=POSTGRES_DB=stash_ai
+Environment=POSTGRES_USER=stash_ai
+Environment=POSTGRES_PASSWORD=stash_ai
+HealthCmd=CMD-SHELL pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+Notify=healthy
+Network=stash.network

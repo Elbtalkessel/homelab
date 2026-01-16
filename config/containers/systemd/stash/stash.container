@@ -27,7 +27,8 @@ Volume=/var/mnt/s1/xyz:/data
 Volume=stash-generated.volume:/generated
 Volume=stash-metadata.volume:/metadata
 Volume=stash-cache.volume:/cache
-Volume=stash-config.volume:/root/.stash
+# Shared with the stash-ai.container
+Volume=stash-config.volume:/root/.stash:z
 # chk
 HealthCmd=CMD-SHELL wget http://localhost:9999 -qO /dev/null || exit 1
 HealthStartPeriod=5s

@@ -22,6 +22,10 @@
         "Enable" true
         "Port" 9999)
 
+	(dict "Service" "stash-ai"
+        "Enable" true
+        "Port" 4153)
+
 	(dict "Service" "vaultwarden"
         "Enable" true
         "Alias" "vault"

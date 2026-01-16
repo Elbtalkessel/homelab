@@ -1,0 +1,47 @@
+[Unit]
+Description=Stash AI Server
+Requires=stash-ai-db.service
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+ContainerName=stash-ai
+Image=ghcr.io/skier233/stash-ai-server:latest
+AutoUpdate=registry
+# env
+Environment=AI_SERVER_DATA_DIR=/app/data
+Environment=AI_SERVER_PLUGINS_DIR=/app/plugins
+Environment=AI_SERVER_DB_HOST=stash-ai-db
+Environment=AI_SERVER_DB_PORT=5432
+Environment=AI_SERVER_DB_NAME=stash_ai
+Environment=AI_SERVER_DB_USER=stash_ai
+Environment=AI_SERVER_DB_PASSWORD=stash_ai
+Environment=AI_SERVER_HOST=0.0.0.0
+Environment=AI_SERVER_PORT=4153
+# Enable docker-specific URL handling (localhost -> host.docker.internal)
+Environment=DOCKER=true
+# vol
+Volume=/etc/localtime:/etc/localtime:ro
+Volume=stash-ai-data.volume:/app/data
+# Shared with stash.container,
+# required to access to stash-go.sqlite inside.
+Volume=stash-config.volume:/app/stash/home:z
+Volume=/var/mnt/s1/xyz:/app/stash/data:ro
+# TODO: chk
+# HealthCmd=CMD-SHELL wget http://localhost:9999 -qO /dev/null || exit 1
+# HealthStartPeriod=5s
+# HealthInterval=5s
+# HealthStartupTimeout=5s
+# HealthRetries=5
+# net
+# database is running on the stash.network
+Network=stash.network
+# public.network is required for stash plugin (a client-side js) to connect to this backend.
+Network=public.network
