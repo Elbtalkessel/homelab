@@ -29,6 +29,9 @@ Volume=stash-metadata.volume:/metadata
 Volume=stash-cache.volume:/cache
 # Shared with the stash-ai.container
 Volume=stash-config.volume:/root/.stash:z
+# Add our Certificate Authority so https://*.x.home.arpa can be queried from
+# within the container
+Volume=step-ca-certs.volume:/usr/local/share/ca-certificates:ro,z
 # chk
 HealthCmd=CMD-SHELL wget http://localhost:9999 -qO /dev/null || exit 1
 HealthStartPeriod=5s
@@ -37,3 +40,4 @@ HealthStartupTimeout=5s
 HealthRetries=5
 # net
 Network=public.network
+Entrypoint=["/bin/sh", "-c", "update-ca-certificates && stash"]
