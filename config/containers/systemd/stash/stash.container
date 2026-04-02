@@ -40,4 +40,5 @@ HealthStartupTimeout=5s
 HealthRetries=5
 # net
 Network=public.network
+# Override to add custom CA from volume we bound previosly
 Entrypoint=["/bin/sh", "-c", "update-ca-certificates && stash"]

@@ -34,6 +34,9 @@ Volume=stash-ai-data.volume:/app/data
 # required to access to stash-go.sqlite inside.
 Volume=stash-config.volume:/app/stash/home:z
 Volume=/var/mnt/s1/xyz:/app/stash/data:ro
+# Add our Certificate Authority so https://*.x.home.arpa can be queried from
+# within the container
+Volume=step-ca-certs.volume:/usr/local/share/ca-certificates:ro,z
 # TODO: chk
 # HealthCmd=CMD-SHELL wget http://localhost:9999 -qO /dev/null || exit 1
 # HealthStartPeriod=5s
@@ -45,3 +48,5 @@ Volume=/var/mnt/s1/xyz:/app/stash/data:ro
 Network=stash.network
 # public.network is required for stash plugin (a client-side js) to connect to this backend.
 Network=public.network
+# Override to add custom CA from volume we bound previosly
+Command=["/bin/sh", "-c", "update-ca-certificates && python -m stash_ai_server.entrypoint"]
