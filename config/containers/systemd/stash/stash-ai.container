@@ -49,4 +49,4 @@ Network=stash.network
 # public.network is required for stash plugin (a client-side js) to connect to this backend.
 Network=public.network
 # Override to add custom CA from volume we bound previosly
-Command=["/bin/sh", "-c", "update-ca-certificates && python -m stash_ai_server.entrypoint"]
+Entrypoint=["/bin/sh", "-c", "update-ca-certificates && python -m stash_ai_server.entrypoint"]
