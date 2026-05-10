@@ -1,0 +1,23 @@
+[Unit]
+Description=I2PD Router
+After=network-online.target
+Wants=network-online.target
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+StartLimitBurst=5
+
+[Container]
+Image=ghcr.io/purplei2p/i2pd:latest
+Exec=--http.hostname=i2pd.x.home.arpa
+ContainerName=i2pd
+AutoUpdate=registry
+Volume=i2pd.volume:/var/lib/i2pd
+Environment=I2PD_HTTP_PROXY_PORT=4444
+Environment=I2PD_HTTP_PROXY_ENABLED=true
+Environment=I2PD_SOCKS_PROXY_ENABLED=true
+Network=public.network

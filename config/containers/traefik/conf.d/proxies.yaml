@@ -71,6 +71,10 @@
   (dict "Service" "whoami"
         "Enable" true
         "Port" 80)
+
+	(dict "Service" "i2pd"
+				"Enable" false
+				"Port" 7070)
 }}
 
 http:
