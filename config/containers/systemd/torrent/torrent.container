@@ -15,7 +15,7 @@ Image=lscr.io/linuxserver/qbittorrent:latest
 AutoUpdate=registry
 ContainerName=torrent
 Environment=TZ=Etc/UTC
-Environment=QBITTORRENT_VERSION=5.1.2
+Environment=QBITTORRENT_VERSION=5.2.0
 Environment=TP_COMMUNITY_THEME=true
 Environment=TP_THEME=catppuccin-frappe
 Environment=DOCKER_MODS=ghcr.io/themepark-dev/theme.park:qbittorrent
