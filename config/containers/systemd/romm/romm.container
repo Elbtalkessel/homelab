@@ -37,6 +37,9 @@ Environment="DB_USER=root"
 # https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#hasheous
 Environment=HASHEOUS_API_ENABLED=true
 
+# Provides game completion times for more than 84,000 games
+Environment=HLTB_API_ENABLED=true
+
 Secret="romm-db-password,type=env,target=DB_PASSWD"
 
 # Generate a key with `openssl rand -hex 32`
