@@ -75,6 +75,10 @@
 	(dict "Service" "i2pd"
 				"Enable" false
 				"Port" 7070)
+	
+	(dict "Service" "romm"
+				"Enable" true
+	      "Port" 8080)
 }}
 
 http:

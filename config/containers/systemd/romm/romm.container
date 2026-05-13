@@ -1,0 +1,58 @@
+[Unit]
+Description=ROMM Server
+Requires=romm-db.service
+After=romm-db.service
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/rommapp/romm:latest
+ContainerName=romm
+AutoUpdate=registry
+
+Volume=/etc/localtime:/etc/localtime:ro
+Volume=romm-resources.volume:/romm/resources 
+Volume=romm-redis.volume:/redis-data
+
+# Your game library. Check https://docs.romm.app/latest/Getting-Started/Folder-Structure/ for more details.
+Volume=/var/mnt/s1/game/library:/romm/library
+
+# Uploaded saves, states, etc.
+Volume=/var/mnt/s1/game/provider/romm/assets:/romm/assets
+
+# (Optional) Path where config.yml is stored
+Volume=/var/mnt/s1/game/provider/romm/config:/romm/config 
+
+Environment="DB_HOST=romm-db"
+Environment="DB_NAME=romm"
+Environment="DB_USER=root"
+
+# https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#hasheous
+Environment=HASHEOUS_API_ENABLED=true
+
+Secret="romm-db-password,type=env,target=DB_PASSWD"
+
+# Generate a key with `openssl rand -hex 32`
+Secret="romm-secret,type=env,target=ROMM_AUTH_SECRET_KEY"
+
+# These are the recommended metadata providers
+Secret="romm-screenscraper-user,type=env,target=SCREENSCRAPER_USER"
+
+# https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#screenscraper
+Secret="romm-screenscraper-password,type=env,target=SCREENSCRAPER_PASSWORD"
+
+# https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#retroachievements
+Secret="romm-retroachievements-api-key,type=env,target=RETROACHIEVEMENTS_API_KEY"
+
+# https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#steamgriddb
+Secret="romm-steamgriddb-api-key,type=env,target=STEAMGRIDDB_API_KEY"
+
+Network=public.network
+Network=romm.network

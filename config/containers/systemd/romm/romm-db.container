@@ -1,0 +1,18 @@
+[Unit]
+Description=ROMM Server Database
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/library/mariadb:latest
+ContainerName=romm-db
+AutoUpdate=registry
+Volume=romm-db.volume:/var/lib/mysql
+Environment="MARIADB_DATABASE=romm"
+Environment="MARIADB_USER=root"
+Secret="romm-db-password,type=env,target=MARIADB_ROOT_PASSWORD"
+Network=romm.network

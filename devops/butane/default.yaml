@@ -60,6 +60,15 @@ storage:
         inline: |
           net.ipv4.ip_unprivileged_port_start=53
 
+    - path: /etc/hosts
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          127.0.0.1     localhost
+          127.0.1.1     coreos.local coreos
+          192.168.8.90  s1.home.arpa
+
   directories:
     - path: /mnt/s1
       mode: 0755
@@ -183,6 +192,23 @@ systemd:
         [Mount]
         What=s1.home.arpa:/volume1/xyz
         Where=/var/mnt/s1/xyz
+        Type=nfs
+        Options=_netdev,vers=4,hard,noatime,x-systemd.mount-timeout=30
+        TimeoutSec=30
+
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: var-mnt-s1-game.mount
+      enabled: true
+      contents: |
+        [Unit]
+        After=network-online.target nss-lookup.target
+        Wants=network-online.target
+
+        [Mount]
+        What=s1.home.arpa:/volume1/Game
+        Where=/var/mnt/s1/game
         Type=nfs
         Options=_netdev,vers=4,hard,noatime,x-systemd.mount-timeout=30
         TimeoutSec=30

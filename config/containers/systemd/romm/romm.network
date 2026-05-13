@@ -1,0 +1,5 @@
+[Unit]
+Description=ROMM Internal Network
+
+[Network]
+NetworkName=romm_internal
