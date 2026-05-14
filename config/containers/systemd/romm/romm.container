@@ -36,9 +36,12 @@ Environment="DB_USER=root"
 
 # https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#hasheous
 Environment=HASHEOUS_API_ENABLED=true
-
-# Provides game completion times for more than 84,000 games
+# PlayMatch is a hash-based matching service used in conjunction with IGDB.
+Environment=PLAYMATCH_API_ENABLED=true
+# Provides game completion times for more than 84,000 games.
 Environment=HLTB_API_ENABLED=true
+Environment=LAUNCHBOX_API_ENABLED=true
+Environment=ENABLE_SCHEDULED_UPDATE_LAUNCHBOX_METADATA=true
 
 Secret="romm-db-password,type=env,target=DB_PASSWD"
 
@@ -56,6 +59,11 @@ Secret="romm-retroachievements-api-key,type=env,target=RETROACHIEVEMENTS_API_KEY
 
 # https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#steamgriddb
 Secret="romm-steamgriddb-api-key,type=env,target=STEAMGRIDDB_API_KEY"
+
+# https://docs.romm.app/4.5.0/Getting-Started/Metadata-Providers/#igdb
+Secret="romm-igdb-client-id,type=env,target=IGDB_CLIENT_ID"
+Secret="romm-igdb-client-secret,type=env,target=IGDB_CLIENT_SECRET"
+
 
 Network=public.network
 Network=romm.network
