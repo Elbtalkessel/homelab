@@ -14,6 +14,7 @@ RestartSec=15
 Image=lscr.io/linuxserver/qbittorrent:latest
 AutoUpdate=registry
 ContainerName=torrent
+
 Environment=TZ=Etc/UTC
 Environment=QBITTORRENT_VERSION=5.2.0
 Environment=TP_COMMUNITY_THEME=true
@@ -23,6 +24,13 @@ Environment=WEBUI_PORT=8080
 Environment=TORRENTING_PORT=6881
 Environment=PUID=0
 Environment=PGID=0
+
+HealthCmd=CMD-SHELL curl --fail --silent http://localhost >/dev/null || exit 1
+HealthStartPeriod=5s
+HealthInterval=5s
+HealthStartupTimeout=5s
+HealthRetries=5
+
 Volume=torrent-config.volume:/config
 Volume=/var/mnt/s1/media:/share/Video
 Network=public.network
