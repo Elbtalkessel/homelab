@@ -1,0 +1,21 @@
+[Unit]
+Description=Dnsmasq Local DNS Resolver
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/strm/dnsmasq:latest
+ContainerName=dnsmasq
+AutoUpdate=registry
+Volume=%h/.config/containers/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf:ro
+PublishPort=192.168.1.130:53:53/tcp
+PublishPort=192.168.1.130:53:53/udp
+Network=public.network
+CapAdd=NET_ADMIN
