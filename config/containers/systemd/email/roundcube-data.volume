@@ -1,0 +1,5 @@
+[Unit]
+Description=Roundcube email web ui data
+
+[Volume]
+VolumeName=roundcube-data

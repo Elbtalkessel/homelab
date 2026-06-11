@@ -1,0 +1,5 @@
+[Unit]
+Description=Emails are here.
+
+[Volume]
+VolumeName=mail-data

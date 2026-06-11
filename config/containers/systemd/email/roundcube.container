@@ -1,0 +1,22 @@
+[Unit]
+Description=Roundcube Webmail
+After=network-online.target
+
+[Container]
+Image=docker.io/roundcube/roundcubemail
+ContainerName=roundcube
+Network=public.network
+
+Environment=ROUNDCUBEMAIL_DEFAULT_HOST=dovecot
+Environment=ROUNDCUBEMAIL_SMTP_SERVER=postfix
+Environment=ROUNDCUBEMAIL_SMTP_PORT=25
+
+Volume=roundcube-data.volume:/var/roundcube
+
+AutoUpdate=registry
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

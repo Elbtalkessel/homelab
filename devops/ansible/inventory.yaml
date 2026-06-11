@@ -1,0 +1,5 @@
+---
+homelab:
+  hosts:
+    x.home.arpa:
+      ansible_host: 192.168.1.130

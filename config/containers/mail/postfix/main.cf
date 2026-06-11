@@ -1,0 +1,24 @@
+compatibility_level = 2
+
+myhostname = mail.x.home.arpa
+mydomain = x.home.arpa
+
+inet_interfaces = all
+inet_protocols = ipv4
+
+mydestination =
+    localhost,
+    localhost.localdomain,
+    x.home.arpa
+
+mynetworks =
+    127.0.0.0/8
+    10.0.0.0/8
+    172.16.0.0/12
+    192.168.0.0/16
+
+home_mailbox = Maildir/
+
+smtpd_recipient_restrictions =
+    permit_mynetworks
+    reject_unauth_destination

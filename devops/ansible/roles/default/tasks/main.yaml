@@ -1,4 +1,7 @@
 ---
 - import_tasks: gitea.yaml
+  tags: [gitea]
 - import_tasks: service.yaml
+  tags: [services]
 - import_tasks: tailscale.yaml
+  tags: [tailscale]

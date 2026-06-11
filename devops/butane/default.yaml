@@ -67,7 +67,7 @@ storage:
         inline: |
           127.0.0.1     localhost
           127.0.1.1     coreos.local coreos
-          192.168.8.90  s1.home.arpa
+          192.168.1.90  s1.home.arpa
 
   directories:
     - path: /mnt/s1

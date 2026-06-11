@@ -1,0 +1,21 @@
+[Unit]
+Description=Postfix Mail Server
+After=network-online.target
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+ContainerName=postfix
+Image=docker.io/debok/postfix
+AutoUpdate=registry
+PublishPort=25:25
+Volume=%h/containers/mail/postfix/main.cf:/etc/postfix/main.cf:ro
+Volume=mail-data.volume:/var/mail:z
+
