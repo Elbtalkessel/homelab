@@ -11,10 +11,10 @@ Restart=on-abnormal
 RestartSec=15
 
 [Container]
-Image=docker.io/strm/dnsmasq:latest
+Image=docker.io/drpsychick/dnsmasq:latest
 ContainerName=dnsmasq
 AutoUpdate=registry
-Volume=%h/.config/containers/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf:ro
+Volume=%h/.config/containers/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf:ro,Z
 PublishPort=192.168.1.130:53:53/tcp
 PublishPort=192.168.1.130:53:53/udp
 Network=public.network
