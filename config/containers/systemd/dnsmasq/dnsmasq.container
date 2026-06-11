@@ -18,4 +18,3 @@ Volume=%h/.config/containers/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf:ro
 PublishPort=192.168.1.130:53:53/tcp
 PublishPort=192.168.1.130:53:53/udp
 Network=public.network
-CapAdd=NET_ADMIN
