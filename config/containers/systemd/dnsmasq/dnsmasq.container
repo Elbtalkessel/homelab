@@ -15,6 +15,9 @@ Image=docker.io/drpsychick/dnsmasq:latest
 ContainerName=dnsmasq
 AutoUpdate=registry
 Volume=%h/.config/containers/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf:ro,Z
-PublishPort=53:53/tcp
-PublishPort=53:53/udp
+# Bind it to 192.168.1.130, I've tried to bind it to 0.0.0.0 (by disabling systemd dns stub, see networking.yaml ansible task.
+# Does work, but podman internal name resolution stopped working.
+# Probably ideally is to host DNS in a separate VM, or better set DNS in router config.
+PublishPort=192.168.1.130:53:53/tcp
+PublishPort=192.168.1.130:53:53/udp
 Network=public.network
