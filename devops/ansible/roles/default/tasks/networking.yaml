@@ -1,0 +1,35 @@
+---
+- name: Create drop-in resolved conf directory
+  ansible.builtin.file:
+    path: /etc/systemd/resolved.conf.d
+    state: directory
+
+- name: Disable resolved DNS stub listener
+  ansible.builtin.copy:
+    src: disable-stub.conf
+    dest: /etc/systemd/resolved.conf.d/
+
+- name: Add local DNS server
+  ansible.builtin.copy:
+    src: resolved.conf
+    dest: /etc/systemd/resolved.conf.d/
+
+# I don't know if it required at all
+- name: Use systemd-resolved in NetworkManager
+  ansible.builtin.copy:
+    src: 90-dns-resolved.conf
+    dest: /etc/NetworkManager/conf.d/90-dns-none.conf
+
+- name: Restart systemd-resolved
+  ansible.builtin.service:
+    name: systemd-resolved
+    state: restarted
+
+- name: Restart NetworkManager
+  ansible.builtin.service:
+    name: NetworkManager
+    state: restarted
+
+# I think this one can replace all we did previously.
+- name: Force set DNS on default connection
+  ansible.builtin.command: nmcli c m "{{ default_connection }}" ipv4.dns 127.0.0.1

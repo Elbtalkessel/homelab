@@ -5,3 +5,5 @@
   tags: [services]
 - import_tasks: tailscale.yaml
   tags: [tailscale]
+- import_tasks: dns.yaml
+  tags: [networking]
