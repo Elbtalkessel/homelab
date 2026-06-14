@@ -1,0 +1,11 @@
+[Unit]
+Description=Wakeup machines on LAN
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=bash /usr/local/bin/wakeup-machines.sh
+
+[Install]
+WantedBy=multi-user.target

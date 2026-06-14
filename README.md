@@ -10,7 +10,7 @@ A set of quadlet services
 
 ## Things to do
 
-- qBittorrent gets stuck. Removing config/qBittorrent/lockfile helps (unconfirmed yet)
+- qBittorrent gets stuck. Removing config/qBittorrent/lockfile helps
 - Put scripts from devenv.nix (igniter, syncup, etc.) to the bin/ directory.
 - Invidious
   - Update companion to use yaml configs instead of env var.

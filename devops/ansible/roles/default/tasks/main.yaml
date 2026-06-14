@@ -5,5 +5,7 @@
   tags: [services]
 - import_tasks: tailscale.yaml
   tags: [tailscale]
-- import_tasks: dns.yaml
+- import_tasks: networking.yaml
   tags: [networking]
+- import_tasks: wakeup-machines.yaml
+  tags: [wakeup-machines]

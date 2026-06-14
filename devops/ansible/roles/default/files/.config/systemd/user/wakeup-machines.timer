@@ -1,0 +1,9 @@
+[Unit]
+Description=Wakeup machines on LAN
+
+[Timer]
+OnCalendar=*-*-* 08:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

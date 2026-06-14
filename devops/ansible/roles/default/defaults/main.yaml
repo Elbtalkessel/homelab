@@ -2,3 +2,4 @@
 default_username: risus
 git_username: git
 default_connection: Wired connection 1
+nas_mac: 10:bf:48:8b:bf:69
