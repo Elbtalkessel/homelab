@@ -35,7 +35,7 @@
         "Enable" true
         "Port" 8686)
 
-	(dict "Service" "overseerr"
+	(dict "Service" "seerr"
         "Enable" true
         "Port" 5055)
 

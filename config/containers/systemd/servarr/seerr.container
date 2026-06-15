@@ -1,0 +1,26 @@
+[Unit]
+Description=Seerr is a request management and media discovery tool built to work with your existing Plex ecosystem.
+Documentation=https://docs.seerr.dev
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=ghcr.io/seerr-team/seerr:latest
+AutoUpdate=registry
+ContainerName=seerr
+Volume=seerr-config.volume:/app/config
+Environment=TZ=Etc/UTC
+Environment=PORT=5055
+HealthCmd=CMD-SHELL wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/settings/public || exit 1
+HealthStartPeriod=20s
+HealthInterval=15s
+HealthStartupTimeout=3s
+HealthRetries=3
+Network=public.network

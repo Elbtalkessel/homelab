@@ -1,5 +1,5 @@
 [Unit]
-Description=Overseerr Service Config
+Description=Seerr Service Config
 
 [Volume]
 VolumeName=overseerr-config
