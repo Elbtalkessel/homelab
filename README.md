@@ -47,7 +47,6 @@
     - systemd credentials (`LoadCredential=`)
     - `pass` / `gopass`
     - or SOPS (preferred if repo-managed secrets are needed)
-
 - Continue UI customization work:
   - replace default container image with custom build
   - track UI changes as part of reproducible image pipeline
@@ -69,10 +68,11 @@
 - Replace with controlled escalation model:
   - systemd-run / polkit where applicable
   - limited admin group or sudo ruleset (if absolutely required)
-
 - Ensure container management remains possible without full root shell escalation
 
 ### Socket activation
+
+Why: mostly because it fixes `X-Real-IP`, without the request IP = traefik internal IP.
 
 `http*.socket` units are stored in `attic/config/systemd/user/` and must be linked into the user systemd directory (either via symlink or manual copy). They are currently not enabled; `traefik.container` is configured without socket activation (socket-related lines are commented out).
 
@@ -104,3 +104,7 @@ Planned improvement:
 Open question:
 
 - Whether Traefik with socket activation can be made deterministic enough for ACME HTTP-01 in a Podman bridge setup, or whether socket activation should be permanently excluded for ingress services.
+
+### Migration to Caddy
+
+If Caddy as lightweight as Nginx it will be a good replacement for Traefik since I use it just a reverse proxy + ACME client. Traefik is resource hungry.
