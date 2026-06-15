@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   dotenv.enable = true;
@@ -14,64 +19,85 @@
       ssh-uri = "${config.env.SSH_USER}@${config.env.SSH_HOST}";
     in
     {
-      get-sos-report.exec = ''
-        scp ${config.env.PROXMOX_USER}@${config.env.PROXMOX_HOST}:/srv/shared/rdsosreport.txt .
-        if test $? -ne 0; then
-          echo "SOS report not found or cannot connect to server."
-          echo "To generate report, create directory mapping in Proxmox > Datacenter."
-          echo "Locate failing VM add virtiofs device. Reboot VM. Drop into terminal."
-          echo "sudo mount -t virtiofs <mapping-id> /mnt/shared"
-        fi
-      '';
+      get-sos-report = {
+        exec = # bash
+          ''
+            scp ${config.env.PROXMOX_USER}@${config.env.PROXMOX_HOST}:/srv/shared/rdsosreport.txt .
+            if test $? -ne 0; then
+              echo "SOS report not found or cannot connect to server."
+              echo "To generate report, create directory mapping in Proxmox > Datacenter."
+              echo "Locate failing VM add virtiofs device. Reboot VM. Drop into terminal."
+              echo "sudo mount -t virtiofs <mapping-id> /mnt/shared"
+            fi
+          '';
+        description = "Download rdsosreport";
+      };
 
-      syncup.exec = ''
-        rsync --del -Parvz ${config.env.DEVENV_ROOT}/config/containers/ ${ssh-uri}:~/.config/containers/
-      '';
+      syncup = {
+        exec = # bash
+          ''
+            rsync --del -Parvz ${config.env.DEVENV_ROOT}/config/containers/ ${ssh-uri}:~/.config/containers/
+            rsync -Parvz ${config.env.DEVENV_ROOT}/config/systemd/user/ ${ssh-uri}:~/.config/systemd/user/
+          '';
+        description = "Send changes to remote server";
+      };
 
-      bu-check.exec = ''
-        code=0
+      bu-check = {
+        exec = # bash
+          ''
+            code=0
 
-        for p in $@; do
-          err=$(butane "$p" -d ${config.env.DEVENV_ROOT} -c 2>&1)
-          printf "\033[90m''${p}:\033[0m "
-          if test -n "$err"; then
-            printf "\033[31m''${err}\033[0m\n"
-            code=1
-          else
-            printf "\033[32mOK\033[0m\n"
-          fi
-        done
+            for p in $@; do
+              err=$(butane "$p" -d ${config.env.DEVENV_ROOT} -c 2>&1)
+              printf "\033[90m''${p}:\033[0m "
+              if test -n "$err"; then
+                printf "\033[31m''${err}\033[0m\n"
+                code=1
+              else
+                printf "\033[32mOK\033[0m\n"
+              fi
+            done
 
-        exit $code
-      '';
+            exit $code
+          '';
+        description = "Butane syntax check";
+      };
 
-      auto-ignite.exec = ''
-        port='${config.env.IGNITION_PORT}'
-        addr="http://$(hostname -I | cut --delimiter=' ' --fields=1):''${port}"
-        ssh $1 "${fcos-install-cmd}=$addr /dev/sda && reboot"
-      '';
+      auto-ignite = {
+        exec = # bash
+          ''
+            port='${config.env.IGNITION_PORT}'
+            addr="http://$(hostname -I | cut --delimiter=' ' --fields=1):''${port}"
+            ssh $1 "${fcos-install-cmd}=$addr /dev/sda && reboot"
+          '';
+        description = "Install coreos onto /dev/sda and reboots machine. Requires `igniter` server.";
+      };
 
-      igniter.exec = ''
-        set -e
+      igniter = {
+        exec = # bash
+          ''
+            set -e
 
-        fpath='${config.env.DEVENV_ROOT}/${config.env.BUTANE_FILE}'
-        port='${config.env.IGNITION_PORT}'
-        host='0.0.0.0'
+            fpath='${config.env.DEVENV_ROOT}/${config.env.BUTANE_FILE}'
+            port='${config.env.IGNITION_PORT}'
+            host='0.0.0.0'
 
-        c() { printf "\033[''${1}m''${2}\033[0m"; }
-        addr="http://$(hostname -I | cut --delimiter=' ' --fields=1):''${port}"
-        echo "$(c 90 'Listening on') $(c 32 $host:$port) 🚀"
-        echo "$(c 90 'Run') $(c 32 "${fcos-install-cmd}=$addr /dev/sda")"
-        echo "Or auto-ignite <server-ip>"
+            c() { printf "\033[''${1}m''${2}\033[0m"; }
+            addr="http://$(hostname -I | cut --delimiter=' ' --fields=1):''${port}"
+            echo "$(c 90 'Listening on') $(c 32 $host:$port) 🚀"
+            echo "$(c 90 'Run') $(c 32 "${fcos-install-cmd}=$addr /dev/sda")"
+            echo "Or auto-ignite <server-ip>"
 
-        body() {
-          butane "$fpath" -d ${config.env.DEVENV_ROOT} --pretty
-        }
+            body() {
+              butane "$fpath" -d ${config.env.DEVENV_ROOT} --pretty
+            }
 
-        while true; do
-          { echo -e 'HTTP/1.1 200 OK\r\n'; body; } | nc -N -l $host $port
-        done
-      '';
+            while true; do
+              { echo -e 'HTTP/1.1 200 OK\r\n'; body; } | nc -N -l $host $port
+            done
+          '';
+        description = "Compile butane file and serve compiled ignition file.";
+      };
     };
 
   git-hooks.hooks = {
