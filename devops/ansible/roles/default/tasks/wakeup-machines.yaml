@@ -12,12 +12,12 @@
 
 - name: Copy wakeup-machines systemd service
   ansible.builtin.copy:
-    src: files/.config/systemd/user/wakeup-machines.service
+    src: files/etc/systemd/system/wakeup-machines.service
     dest: /etc/systemd/system/
 
 - name: Copy wakeup-machines systemd timer
   ansible.builtin.copy:
-    src: files/.config/systemd/user/wakeup-machines.timer
+    src: files/etc/systemd/system/wakeup-machines.timer
     dest: /etc/systemd/system/
 
 - name: Start wakeup-machines timer

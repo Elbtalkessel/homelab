@@ -25,12 +25,14 @@ Environment=TORRENTING_PORT=6881
 Environment=PUID=0
 Environment=PGID=0
 
-HealthCmd=CMD-SHELL curl --fail --silent http://localhost >/dev/null || exit 1
+HealthCmd=CMD-SHELL bash /usr/local/bin/health-check-and-recover.sh 8080
 HealthStartPeriod=5s
-HealthInterval=5s
+HealthInterval=15s
 HealthStartupTimeout=5s
 HealthRetries=5
+HealthOnFailure=kill
 
 Volume=torrent-config.volume:/config
 Volume=/var/mnt/s1/media:/share/Video
+Volume=%h/.config/containers/qbittorrent/usr/local/bin/health-check-and-recover.sh:/usr/local/bin/health-check-and-recover.sh:ro
 Network=public.network
