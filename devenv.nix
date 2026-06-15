@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  lib,
   ...
 }:
 
@@ -36,8 +35,10 @@
       syncup = {
         exec = # bash
           ''
-            rsync --del -Parvz ${config.env.DEVENV_ROOT}/config/containers/ ${ssh-uri}:~/.config/containers/
-            rsync -Parvz ${config.env.DEVENV_ROOT}/config/systemd/user/ ${ssh-uri}:~/.config/systemd/user/
+            rsync \
+              --del -Parvz \
+              --exclude-from='${config.env.DEVENV_ROOT}/.rsyncignore' \
+              ${config.env.DEVENV_ROOT}/config/containers/ ${ssh-uri}:~/.config/containers/
           '';
         description = "Send changes to remote server";
       };
