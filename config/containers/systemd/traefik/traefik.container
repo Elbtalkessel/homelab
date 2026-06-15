@@ -1,7 +1,7 @@
 [Unit]
 Description=Traefik reverse proxy
 After=network-online.target
-Requires=podman.socket step-ca.service
+Requires=podman.socket http.socket https.socket step-ca.service
 
 [Install]
 WantedBy=default.target
@@ -11,6 +11,7 @@ Restart=on-abnormal
 RestartSec=15
 StartLimitBurst=5
 StartLimitIntervalSec=120
+Accept=no
 
 [Container]
 ContainerName=traefik
@@ -23,8 +24,6 @@ Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro,z
 Volume=%h/.config/containers/traefik/conf.d:/etc/traefik/conf.d:ro
 Volume=%h/.config/containers/traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro
 Volume=step-ca-certs.volume:/certs:ro,z
-PublishPort=80:80
-PublishPort=443:443
 Network=public.network
 Label=traefik.enable=true
 # region dashboard
