@@ -108,3 +108,8 @@ Open question:
 ### Migration to Caddy
 
 If Caddy as lightweight as Nginx it will be a good replacement for Traefik since I use it just a reverse proxy + ACME client. Traefik is resource hungry.
+
+### More Services
+
+- [ ] Open WebUI
+- [ ] SearXNG

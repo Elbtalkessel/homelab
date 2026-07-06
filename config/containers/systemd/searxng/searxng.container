@@ -1,0 +1,20 @@
+[Unit]
+Description=SearXNG Container
+After=network-online.target
+Wants=network-online.target
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/searxng/searxng:latest
+ContainerName=searxng
+AutoUpdate=registry
+Volume=%h/.config/containers/searxng/settings.yml:/etc/searxng/settings.yml:ro
+Network=public.network
