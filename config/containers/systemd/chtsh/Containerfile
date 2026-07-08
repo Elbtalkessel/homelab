@@ -1,4 +1,4 @@
-FROM docker.io/library/alpine:3.14
+FROM docker.io/library/alpine:3.24
 
 # installing dependencies
 RUN apk add --update --no-cache \
@@ -23,19 +23,19 @@ WORKDIR /app
 RUN curl -L https://github.com/chubin/cheat.sh/archive/refs/heads/master.tar.gz | tar xz --strip-components=1 -C /app
 
 # building missing python packages
-RUN apk add --no-cache --virtual build-deps py3-pip g++ python3-dev libffi-dev \
-    && pip3 install --no-cache-dir --upgrade pygments \
-    && pip3 install --no-cache-dir -r requirements.txt \
-    && apk del build-deps
-
-# fetching cheat sheets
-RUN mkdir -p /root/.cheat.sh/log/ \
-    && python3 lib/fetch.py fetch-all
+# alpine:3.24 - wasn't able to build PyICU without installing py3-pkgconfig and icu-dev.
+RUN apk add --no-cache --virtual build-deps py3-pip g++ python3-dev libffi-dev py3-pkgconfig icu-dev
+RUN python -m venv /app/.venv \
+  && . /app/.venv/bin/activate \
+  && pip3 install --no-cache-dir --upgrade pygments \
+  && pip3 install --no-cache-dir -r requirements.txt \
+  && deactivate
+RUN apk del build-deps
 
 # installing server dependencies
 RUN apk add --update --no-cache py3-jinja2 py3-flask bash gawk
 
 EXPOSE 8002
 
-ENTRYPOINT ["python3", "-u", "bin/srv.py"]
+ENTRYPOINT ["/app/.venv/bin/python3", "-u", "bin/srv.py"]
 CMD [""]

@@ -14,7 +14,7 @@ RestartSec=15
 
 [Container]
 ContainerName=chtsh
-Image=chtsh-local
+Image=quay.io/glazing2928/chtsh:latest
 Network=chtsh.network
 Network=public.network
 Environment=CHEATSH_CACHE_REDIS_HOST=chtsh-redis
