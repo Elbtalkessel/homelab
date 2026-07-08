@@ -8,7 +8,7 @@ Restart=on-abnormal
 RestartSec=15
 
 [Container]
-Image=docker.io/library/redis:4-alpine
+Image=docker.io/library/redis:8-alpine
 ContainerName=chtsh-redis
 AutoUpdate=registry
 Volume=chtsh_redis_data:/data
