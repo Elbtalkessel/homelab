@@ -37,5 +37,4 @@ RUN apk add --update --no-cache py3-jinja2 py3-flask bash gawk
 
 EXPOSE 8002
 
-ENTRYPOINT ["/app/.venv/bin/python3", "-u", "bin/srv.py"]
-CMD [""]
+CMD ["/app/.venv/bin/python3", "-u", "bin/srv.py"]
