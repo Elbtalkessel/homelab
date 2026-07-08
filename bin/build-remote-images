@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+ssh "${SSH_USER}@${SSH_HOST}" <<EOF
+set -euo pipefail
+while read -r f; do
+  repo="\${f%/*}"
+  name="\${repo##*/}"
+  pushd "\$repo"
+    tag="${REGISTRY_URL}/${REGISTRY_USER}/\$name:latest"
+    podman build . --tag "\$tag" --no-cache
+    podman push "\$tag"
+  popd
+done < <(find ~/.config/containers/systemd -name Containerfile)
+EOF
