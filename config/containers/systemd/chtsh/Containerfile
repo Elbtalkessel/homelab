@@ -20,7 +20,7 @@ RUN apk add --update --no-cache \
 WORKDIR /app
 
 # Download and unpack cheat.sh source
-RUN curl -L https://github.com/chubin/cheat.sh/archive/refs/heads/master.tar.gz | tar xz --strip-components=1 -C /app
+RUN curl -L https://github.com/Elbtalkessel/cheat.sh/archive/refs/heads/master.tar.gz | tar xz --strip-components=1 -C /app
 
 # building missing python packages
 # alpine:3.24 - wasn't able to build PyICU without installing py3-pkgconfig and icu-dev.
@@ -30,6 +30,13 @@ RUN python -m venv /app/.venv \
   && pip3 install --no-cache-dir --upgrade pygments \
   && pip3 install --no-cache-dir -r requirements.txt \
   && deactivate
+RUN cd /tmp \
+  && git clone https://github.com/garabik/grc \
+  && cd grc \
+  && git checkout v1.13 \
+  && sh ./install.sh \
+  && cd .. \
+  && rm -rf /tmp/grc
 RUN apk del build-deps
 
 # installing server dependencies
