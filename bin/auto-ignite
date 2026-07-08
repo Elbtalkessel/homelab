@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+PORT="${IGNITION_PORT}"
+FCOS_INSTALL_CMD="sudo coreos-installer install --insecure-ignition --ignition-url"
+ADDR="http://$(hostname -I | cut --delimiter=' ' --fields=1):${PORT}"
+ssh "$1" "${FCOS_INSTALL_CMD}=$ADDR /dev/sda && reboot"

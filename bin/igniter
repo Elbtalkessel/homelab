@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -e
+
+if [ -z "$DEVENV_ROOT" ]; then
+    DEVENV_ROOT=$(git rev-parse --show-toplevel)
+fi
+
+FPATH="${DEVENV_ROOT}/${BUTANE_FILE}"
+PORT="${IGNITION_PORT}"
+HOST='0.0.0.0'
+FCOS_INSTALL_CMD="sudo coreos-installer install --insecure-ignition --ignition-url"
+
+c() { printf "\033[${1}m${2}\033[0m"; }
+ADDR="http://$(hostname -I | cut --delimiter=' ' --fields=1):${PORT}"
+
+echo "$(c 90 'Listening on') $(c 32 $HOST:$PORT) 🚀"
+echo "$(c 90 'Run') $(c 32 "${FCOS_INSTALL_CMD}=$ADDR /dev/sda")"
+echo "Or auto-ignite <server-ip>"
+
+body() {
+  butane "$FPATH" -d "$DEVENV_ROOT" --pretty
+}
+
+while true; do
+  { echo -e 'HTTP/1.1 200 OK\r\n'; body; } | nc -N -l $HOST $PORT
+done

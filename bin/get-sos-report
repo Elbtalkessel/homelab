@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+scp "${PROXMOX_USER}@${PROXMOX_HOST}:/srv/shared/rdsosreport.txt" .
+if test $? -ne 0; then
+  echo "SOS report not found or cannot connect to server."
+  echo "To generate report, create directory mapping in Proxmox > Datacenter."
+  echo "Locate failing VM add virtiofs device. Reboot VM. Drop into terminal."
+  echo "sudo mount -t virtiofs <mapping-id> /mnt/shared"
+fi

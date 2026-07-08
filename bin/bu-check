@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+code=0
+
+if [ -z "$DEVENV_ROOT" ]; then
+    DEVENV_ROOT=$(git rev-parse --show-toplevel)
+fi
+
+for p in "$@"; do
+  err=$(butane "$p" -d "$DEVENV_ROOT" -c 2>&1)
+  printf "\033[90m${p}:\033[0m "
+  if test -n "$err"; then
+    printf "\033[31m${err}\033[0m\n"
+    code=1
+  else
+    printf "\033[32mOK\033[0m\n"
+  fi
+done
+
+exit $code
