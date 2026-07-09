@@ -20,6 +20,9 @@ Network=chtsh.network
 Network=public.network
 Environment=CHEATSH_CACHE_REDIS_HOST=chtsh-redis
 Environment=CHEATSH_SERVER_PORT=8002
+Environment=UPSTREAM_RSS_CACHE=true
+Environment=UPSTREAM_REQ_CACHE=true
+Environment=UPSTREAM_DIR_CACHE=/root/.cheat.sh/cache
 Volume=chtsh.volume:/root/.cheat.sh
 Label=traefik.enable=true
 Label=traefik.http.routers.chtsh.rule=Host(`cht.x.home.arpa`)
