@@ -6,7 +6,7 @@ while read -r f; do
   repo="\${f%/*}"
   name="\${repo##*/}"
   pushd "\$repo"
-    tag="${REGISTRY_URL}/${REGISTRY_USER}/\$name:latest"
+    tag="${REGISTRY_URL}/${REGISTRY_USER}/\${name}:latest"
     podman build . --tag "\$tag" --no-cache
     podman push "\$tag"
   popd
