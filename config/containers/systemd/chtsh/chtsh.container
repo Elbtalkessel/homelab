@@ -23,6 +23,7 @@ Environment=CHEATSH_SERVER_PORT=8002
 Environment=UPSTREAM_RSS_CACHE=true
 Environment=UPSTREAM_REQ_CACHE=true
 Environment=UPSTREAM_DIR_CACHE=/root/.cheat.sh/cache
+Environment=CHEATSH_ADAPTER_QUESTION_OUTPUT_FORMAT=code
 Volume=chtsh.volume:/root/.cheat.sh
 Label=traefik.enable=true
 Label=traefik.http.routers.chtsh.rule=Host(`cht.x.home.arpa`)
