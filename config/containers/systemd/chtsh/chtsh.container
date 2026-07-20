@@ -24,6 +24,7 @@ Environment=UPSTREAM_RSS_CACHE=true
 Environment=UPSTREAM_REQ_CACHE=true
 Environment=UPSTREAM_DIR_CACHE=/root/.cheat.sh/cache
 Environment=CHEATSH_ADAPTER_QUESTION_OUTPUT_FORMAT=code
+Environment=CHEATSH_PATH_INTERNAL_BIN_UPSTREAM_RUNNER=/app/.venv/bin/python
 Volume=chtsh.volume:/root/.cheat.sh
 Label=traefik.enable=true
 Label=traefik.http.routers.chtsh.rule=Host(`cht.x.home.arpa`)
