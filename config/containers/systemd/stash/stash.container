@@ -24,6 +24,7 @@ Environment="STASH_PORT=9999"
 # vol
 Volume=/etc/localtime:/etc/localtime:ro
 Volume=/var/mnt/s1/xyz:/data
+Volume=/var/mnt/s1/media:/share/Video
 Volume=stash-generated.volume:/generated
 Volume=stash-metadata.volume:/metadata
 Volume=stash-cache.volume:/cache
