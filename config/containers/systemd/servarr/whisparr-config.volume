@@ -1,0 +1,5 @@
+[Unit]
+Description=Whisparr Service Config
+
+[Volume]
+VolumeName=whisparr-config

@@ -1,0 +1,35 @@
+[Unit]
+Description=Whisparr is an adult video collection manager for Usenet and BitTorrent users.
+Documentation=https://wiki.servarr.com/en/whisparr
+Wants=torrent.service
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=ghcr.io/hotio/whisparr:v3
+AutoUpdate=registry
+ContainerName=whisparr
+Volume=whisparr-config.volume:/config
+Volume=/var/mnt/s1/media:/share/Video
+Environment=TZ=Etc/UTC
+Environment=PUID=0
+Environment=PGID=0
+Environment=WEBUI_PORTS=6969/tcp
+HealthCmd=CMD-SHELL curl --fail http://localhost:6969/login || exit 1
+HealthStartPeriod=10s
+HealthInterval=5s
+HealthStartupTimeout=5s
+HealthRetries=5
+Network=public.network
+Label=traefik.enable=true
+Label=traefik.http.routers.whisparr.rule=Host(`whisparr.x.home.arpa`)
+Label=traefik.http.routers.whisparr.entrypoints=websecure
+Label=traefik.http.routers.whisparr.tls.certresolver=ca
+Label=traefik.http.services.whisparr.loadbalancer.server.port=6969
