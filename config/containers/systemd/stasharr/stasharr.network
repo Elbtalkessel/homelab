@@ -1,0 +1,5 @@
+[Unit]
+Description=Stasharr Network
+
+[Network]
+NetworkName=stasharr

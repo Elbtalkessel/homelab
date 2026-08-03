@@ -1,0 +1,5 @@
+[Unit]
+Description=Stasharr Data
+
+[Volume]
+VolumeName=stasharr

@@ -75,7 +75,7 @@
 	(dict "Service" "i2pd"
 				"Enable" false
 				"Port" 7070)
-	
+
 	(dict "Service" "romm"
 				"Enable" true
 	      "Port" 8080)
@@ -84,6 +84,10 @@
 				"Enable" true
 				"Alias" "mail"
 	      "Port" 8080)
+
+	(dict "Service" "stasharr"
+				"Enable" true
+	      "Port" 3000)
 }}
 
 http:

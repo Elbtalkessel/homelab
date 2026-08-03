@@ -1,0 +1,27 @@
+[Unit]
+Description=Stasharr Server Database
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/library/postgres:17-alpine
+ContainerName=stasharr-db
+AutoUpdate=registry
+Volume=stasharr-db.volume:/var/lib/postgresql/data
+
+Environment="POSTGRES_INITDB_ARGS='--data-checksums'"
+Environment="POSTGRES_USER=stasharr"
+Environment="POSTGRES_DB=stasharr"
+Secret="stasharr-db-password,type=env,target=POSTGRES_PASSWORD"
+
+HealthCmd=CMD-SHELL pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+HealthStartPeriod=10s
+HealthInterval=5s
+HealthStartupTimeout=5s
+HealthRetries=10
+
+Network=stasharr.network

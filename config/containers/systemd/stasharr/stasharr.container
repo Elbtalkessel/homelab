@@ -1,0 +1,46 @@
+[Unit]
+Description=Stasharr is a self-hosted console that discovers scenes from a supported catalog provider, sends acquisitions to Whisparr, and validates availability against your local Stash library.
+Documentation=https://github.com/enymawse/stasharr-portal
+Wants=stash.service whisparr.service stasharr-db.service
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=ghcr.io/enymawse/stasharr-portal:latest
+AutoUpdate=registry
+ContainerName=stasharr
+Volume=stasharr.volume:/var/lib/stasharr
+
+Environment=TZ=Etc/UTC
+Environment=DATABASE_HOST=stasharr-db
+Environment=DATABASE_URL=""
+Environment=POSTGRES_DB=stasharr
+Environment=POSTGRES_USER=stasharr
+Environment=HOST=0.0.0.0
+Environment=PORT=3000
+Environment=DATABASE_MIGRATION_MAX_ATTEMPTS=30
+Environment=DATABASE_MIGRATION_RETRY_DELAY_SECONDS=2
+Secret="stasharr-db-password,type=env,target=POSTGRES_PASSWORD"
+# Optional advanced override. Leave unset to let Stasharr generate and persist
+# a unique session secret for this install in the app data volume.
+# SESSION_SECRET: your-own-long-random-secret
+# Optional: uncomment if catalog provider checks time out on IPv4-only Docker networks.
+# NODE_OPTIONS: --no-network-family-autoselection
+# Optional: set to true when serving Stasharr over HTTPS.
+Environment=SESSION_COOKIE_SECURE=true
+
+HealthCmd=CMD-SHELL curl --fail http://localhost:3000 || exit 1
+HealthStartPeriod=10s
+HealthInterval=5s
+HealthStartupTimeout=5s
+HealthRetries=5
+
+Network=public.network
+Network=stasharr.network
