@@ -1,0 +1,5 @@
+[Unit]
+Description=Uptime Kuma Data
+
+[Volume]
+VolumeName=uptime-kuma

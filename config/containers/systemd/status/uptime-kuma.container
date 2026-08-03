@@ -1,0 +1,19 @@
+[Unit]
+Description=Uptime Kuma is an easy-to-use self-hosted monitoring tool.
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/louislam/uptime-kuma:2
+ContainerName=uptime-kuma
+AutoUpdate=registry
+Volume=uptime-kuma.volume:/app/data
+Volume=/etc/localtime:/etc/localtime:ro
+Network=public.network

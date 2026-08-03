@@ -88,6 +88,11 @@
 	(dict "Service" "stasharr"
 				"Enable" true
 	      "Port" 3000)
+
+	(dict "Service" "uptime-kuma"
+				"Alias" "status"
+				"Enable" true
+	      "Port" 3001)
 }}
 
 http:
