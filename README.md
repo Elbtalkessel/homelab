@@ -52,36 +52,36 @@ This project uses [devenv](https://devenv.sh/).
 
 ## Available Services
 
-- adguard
-- calibre
-- chtsh
-- dnsmasq
-- dovecot
-- gitea
-- i2p
-- immich
-- invidious
-- plex
-- postfix
-- romm
-- roundcube
-- sablier
-- searxng
-- flaresolverr
-- lidarr
-- prowlarr
-- radarr
-- seerr
-- sonarr
-- whisparr
-- stash
-- stasharr
-- status
-- step-ca
-- torrent
-- traefik
-- vaultwarden
-- whoami
+- [adguard](./config/containers/systemd/adguard)
+- [calibre](./config/containers/systemd/calibre)
+- [chtsh](./config/containers/systemd/chtsh)
+- [dnsmasq](./config/containers/systemd/dnsmasq)
+- [dovecot](./config/containers/systemd/dovecot) _WIP_
+- [gitea](./config/containers/systemd/gitea)
+- [i2p](./config/containers/systemd/i2p) _WIP_
+- [immich](./config/containers/systemd/immich)
+- [invidious](./config/containers/systemd/invidious)
+- [plex](./config/containers/systemd/plex)
+- [postfix](./config/containers/systemd/postfix) _WIP_
+- [romm](./config/containers/systemd/romm)
+- [roundcube](./config/containers/systemd/roundcube) _WIP_
+- [sablier](./config/containers/systemd/sablier)
+- [searxng](./config/containers/systemd/searxng)
+- [flaresolverr](./config/containers/systemd/servarr/flaresolverr)
+- [lidarr](./config/containers/systemd/servarr/lidarr)
+- [prowlarr](./config/containers/systemd/servarr/prowlarr)
+- [radarr](./config/containers/systemd/servarr/radarr)
+- [seerr](./config/containers/systemd/servarr/seerr)
+- [sonarr](./config/containers/systemd/servarr/sonarr)
+- [whisparr](./config/containers/systemd/servarr/whisparr)
+- [stash](./config/containers/systemd/stash)
+- [stasharr](./config/containers/systemd/stasharr)
+- [status](./config/containers/systemd/status)
+- [step-ca](./config/containers/systemd/step-ca)
+- [torrent](./config/containers/systemd/torrent)
+- [traefik](./config/containers/systemd/traefik)
+- [vaultwarden](./config/containers/systemd/vaultwarden)
+- [whoami](./config/containers/systemd/whoami)
 
 ---
 
