@@ -1,0 +1,5 @@
+[Unit]
+Description=Stash Binge Data
+
+[Volume]
+VolumeName=binge-data

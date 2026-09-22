@@ -19,6 +19,7 @@
         "Port" 2283)
 
 	(dict "Service" "stash"
+        "AllowHomeCors" true
         "Enable" true
         "Port" 9999)
 
@@ -93,14 +94,22 @@
 				"Alias" "status"
 				"Enable" true
 	      "Port" 3001)
+
+	(dict "Service" "binge"
+        "AllowHomeCors" true
+        "Enable" true
+        "Port" 7878)
 }}
 
 http:
   middlewares:
-    allowomen:
+    allowhome:
       headers:
         accessControlAllowCredentials: true
-        accessControlAllowOriginList: "https://omen.home.arpa"
+        accessControlAllowOriginList:
+          - "https://omen.home.arpa"
+          - "https://binge.x.home.arpa"
+          - "https://stash.x.home.arpa"
         accessControlAllowMethods:
           - GET
           - POST
@@ -113,6 +122,7 @@ http:
           - User-Agent
           - Authorization
           - Content-Type
+          - apikey
   {{range $proxies}}
   {{if .Enable}}
   {{if .SuspendAfter }}
@@ -161,13 +171,13 @@ http:
       rule: "Host(`{{$domain}}.x.home.arpa`)"
       entryPoints:
         - websecure
-      {{ if .SuspendAfter }}
+      {{if .SuspendAfter}}
       middlewares:
         - {{.Service}}-sablier@file
-      {{ end }}
-      {{if eq .Service "stash"}}
+      {{end}}
+      {{if .AllowHomeCors}}
       middlewares:
-        - allowomen
+        - allowhome
       {{end}}
       service: {{.Service}}
       tls:

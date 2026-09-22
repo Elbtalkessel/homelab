@@ -1,0 +1,25 @@
+[Unit]
+Description=Stash Binge Server
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=ghcr.io/ordureconnoisseur/binge-server:latest
+ContainerName=binge
+AutoUpdate=registry
+Environment=BINGE_ALLOWED_ORIGIN=https://stash.x.home.arpa
+Environment=BINGE_SOCIAL_WRITE_ROOT=/media
+Environment=BINGE_SOCIAL_STASH_ROOT=/share/Video/Adult/social
+Environment=STASH_URL=https://stash.x.home.arpa
+Secret="stash-apikey,type=env,target=STASH_API_KEY"
+
+Volume=binge-data.volume:/data
+Volume=/var/mnt/s1/media/Adult/social:/media
+Network=public.network
