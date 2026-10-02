@@ -34,6 +34,8 @@ Volume=stash-ai-data.volume:/app/data
 # required to access to stash-go.sqlite inside.
 Volume=stash-config.volume:/app/stash/home:z
 Volume=/var/mnt/s1/xyz:/app/stash/data:ro
+# Necessary because installed plugins wont survive container reload.
+Volume=stash-ai-plugins.volume:/app/plugins
 # Add our Certificate Authority so https://*.x.home.arpa can be queried from
 # within the container
 Volume=step-ca-certs.volume:/usr/local/share/ca-certificates:ro,z
