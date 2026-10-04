@@ -11,7 +11,10 @@ RestartSec=15
 Image=docker.io/pgvector/pgvector:pg18
 ContainerName=cove-db
 AutoUpdate=registry
-Volume=cove-db.volume:/var/lib/postgresql/data
+# PG18+ stores data in /var/lib/postgresql/<major>/docker, so the volume must be
+# mounted at the parent. Mounting at /var/lib/postgresql/data makes the image's
+# entrypoint abort with "in 18+, these Docker images are configured to store..."
+Volume=cove-db.volume:/var/lib/postgresql
 
 Environment="POSTGRES_INITDB_ARGS='--data-checksums'"
 Environment=POSTGRES_DB=cove
