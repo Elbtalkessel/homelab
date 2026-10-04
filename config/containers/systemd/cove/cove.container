@@ -17,6 +17,12 @@ RestartSec=15
 Image=ghcr.io/yourcove/cove-app:latest
 ContainerName=cove
 AutoUpdate=registry
+# The image hardcodes USER cove (uid 1000), which rootless podman maps to an
+# unmapped subuid with no rights on the NFS exports under /var/mnt/s1. Map the
+# process onto the podman user's uid instead so the host mounts are readable,
+# the same identity that makes root-in-stash work. Same approach as immich.
+UserNS=keep-id
+User=%U:%U
 
 # env
 Environment=TZ=Etc/UTC
@@ -43,6 +49,13 @@ Volume=cove-cache.volume:/cache
 # cove-db-password secret, e.g.
 #   Host=cove-db;Port=5432;Database=cove;Username=cove;Password=<password>
 Secret="cove-db-connection-string,type=env,target=COVE__Postgres__ConnectionString"
+
+# chk (endpoint from the image's own HEALTHCHECK)
+HealthCmd=CMD-SHELL curl -fsS http://localhost:5073/health || exit 1
+HealthStartPeriod=30s
+HealthInterval=30s
+HealthStartupTimeout=5s
+HealthRetries=3
 
 # net
 Network=public.network
