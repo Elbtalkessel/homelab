@@ -27,18 +27,22 @@ Environment=AI_SERVER_HOST=0.0.0.0
 Environment=AI_SERVER_PORT=4153
 # Enable docker-specific URL handling (localhost -> host.docker.internal)
 Environment=DOCKER=true
-# vol
+
 Volume=/etc/localtime:/etc/localtime:ro
 Volume=stash-ai-data.volume:/app/data
-# Shared with stash.container,
-# required to access to stash-go.sqlite inside.
-Volume=stash-config.volume:/app/stash/home:z
-Volume=/var/mnt/s1/xyz:/app/stash/data:ro
 # Necessary because installed plugins wont survive container reload.
 Volume=stash-ai-plugins.volume:/app/plugins
+
+# Shared with stash.container,
+# required to access to stash-go.sqlite inside.
+Volume=stash-config.volume:/root/.stash:z
+Volume=/var/mnt/s1/xyz:/data:ro
+Volume=/var/mnt/s1/media:/share/Video:ro
+
 # Add our Certificate Authority so https://*.x.home.arpa can be queried from
 # within the container
 Volume=step-ca-certs.volume:/usr/local/share/ca-certificates:ro,z
+
 # TODO: chk
 # HealthCmd=CMD-SHELL wget http://localhost:9999 -qO /dev/null || exit 1
 # HealthStartPeriod=5s
