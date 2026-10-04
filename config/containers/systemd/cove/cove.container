@@ -1,0 +1,52 @@
+[Unit]
+Description=Cove Media Organizer
+Documentation=https://yourcove.net/docs/user/getting-started/install/
+Requires=cove-db.service
+After=cove-db.service
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=ghcr.io/yourcove/cove-app:latest
+ContainerName=cove
+AutoUpdate=registry
+
+# env
+Environment=TZ=Etc/UTC
+Environment=COVE__Postgres__Managed=false
+# COVE__Postgres__ConnectionString is intentionally NOT set here. Cove needs the
+# password embedded in the connection string, and systemd does not expand
+# variables inside Environment=, so the whole string is delivered by the
+# cove-db-connection-string secret instead.
+Environment=COVE_HOME=/config
+Environment=COVE__GeneratedPath=/generated
+Environment=COVE__CachePath=/cache
+Environment=COVE__BackupPath=/backups
+
+# vol
+Volume=/etc/localtime:/etc/localtime:ro
+Volume=/var/mnt/s1/xyz:/data/legacy:ro
+Volume=/var/mnt/s1/media:/data/library:ro
+Volume=cove-config.volume:/config
+Volume=cove-generated.volume:/generated
+Volume=cove-backups.volume:/backups
+Volume=cove-cache.volume:/cache
+
+# Value must be a full Npgsql connection string whose password matches the
+# cove-db-password secret, e.g.
+#   Host=cove-db;Port=5432;Database=cove;Username=cove;Password=<password>
+Secret="cove-db-connection-string,type=env,target=COVE__Postgres__ConnectionString"
+
+# net
+Network=public.network
+Network=cove.network
+
+# Intel VAAPI acceleration
+AddDevice=/dev/dri:/dev/dri

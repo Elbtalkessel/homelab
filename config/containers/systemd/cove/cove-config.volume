@@ -1,0 +1,5 @@
+[Unit]
+Description=Cove Config and Installed Extensions
+
+[Volume]
+VolumeName=cove-config

@@ -1,0 +1,28 @@
+[Unit]
+Description=Cove Database
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/pgvector/pgvector:pg18
+ContainerName=cove-db
+AutoUpdate=registry
+Volume=cove-db.volume:/var/lib/postgresql/data
+
+Environment="POSTGRES_INITDB_ARGS='--data-checksums'"
+Environment=POSTGRES_DB=cove
+Environment=POSTGRES_USER=cove
+# Must match the password embedded in the cove-db-connection-string secret.
+Secret="cove-db-password,type=env,target=POSTGRES_PASSWORD"
+
+HealthCmd=CMD-SHELL pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+HealthStartPeriod=10s
+HealthInterval=5s
+HealthStartupTimeout=5s
+HealthRetries=10
+
+Network=cove.network

@@ -55,6 +55,7 @@ This project uses [devenv](https://devenv.sh/).
 - [adguard](./config/containers/systemd/adguard)
 - [calibre](./config/containers/systemd/calibre)
 - [chtsh](./config/containers/systemd/chtsh)
+- [cove](./config/containers/systemd/cove)
 - [dnsmasq](./config/containers/systemd/dnsmasq)
 - [dovecot](./config/containers/systemd/dovecot) _WIP_
 - [gitea](./config/containers/systemd/gitea)

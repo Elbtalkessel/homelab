@@ -1,0 +1,5 @@
+[Unit]
+Description=Cove Generated Data
+
+[Volume]
+VolumeName=cove-generated
