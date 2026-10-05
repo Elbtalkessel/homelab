@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# Extract the step-ca root certificate from the running homelab and emit
+# per-OS install instructions. Run on the homelab host (where podman can
+# see the containers).
+#
+# Overrides:
+#   STEP_CA_CONTAINER   container name to inspect first (default: traefik)
+#   STEP_CA_CERT_PATH   path inside that container (default: /certs/root_ca.crt)
+#   OUT                 output file (default: ./step-ca-root.crt)
+
+set -euo pipefail
+
+CONTAINER="${STEP_CA_CONTAINER:-traefik}"
+CERT_PATH="${STEP_CA_CERT_PATH:-/certs/root_ca.crt}"
+OUT="${OUT:-step-ca-root.crt}"
+
+command -v podman >/dev/null 2>&1 || {
+    echo "podman is required" >&2
+    exit 1
+}
+
+# Probe the configured container first, then step-ca as a fallback.
+found=""
+for candidate in \
+    "${CONTAINER}|${CERT_PATH}" \
+    "step-ca|/home/step/certs/root_ca.crt"
+do
+    name="${candidate%%|*}"
+    path="${candidate##*|}"
+    if podman container exists "$name" 2>/dev/null \
+        && podman exec "$name" test -s "$path" 2>/dev/null
+    then
+        found="${name}|${path}"
+        break
+    fi
+done
+
+if [[ -z "$found" ]]; then
+    cat >&2 <<EOF
+Could not locate root_ca.crt in any known container.
+Tried:
+  ${CONTAINER}:${CERT_PATH}
+  step-ca:/home/step/certs/root_ca.crt
+Start the step-ca container, or set STEP_CA_CONTAINER / STEP_CA_CERT_PATH.
+EOF
+    exit 1
+fi
+
+name="${found%%|*}"
+path="${found##*|}"
+
+podman cp "${name}:${path}" "$OUT"
+chmod 0644 "$OUT"
+
+fpr=$(sha256sum "$OUT" | awk '{print $1}')
+written=$(realpath "$OUT")
+
+cat <<EOF
+step-ca root CA written to: ${written}
+SHA-256:                    ${fpr}
+
+Verify the fingerprint matches what you expect before installing
+this CA cert on any device.
+
+Install on:
+
+Linux (Debian/Ubuntu)
+  sudo cp ${written} /usr/local/share/ca-certificates/step-ca.crt
+  sudo update-ca-certificates
+
+Linux (Fedora/RHEL/uCore)
+  sudo cp ${written} /etc/pki/ca-trust/source/anchors/step-ca.crt
+  sudo update-ca-trust
+
+macOS
+  sudo security add-trusted-cert -d -r trustRoot \\
+    -k /Library/Keychains/System.keychain ${written}
+
+iOS
+  Transfer ${written} to the device (AirDrop, email, etc.),
+  open it to install the profile, then:
+    Settings -> General -> VPN & Device Management -> enable the profile
+    Settings -> General -> About -> Certificate Trust Settings -> enable trust
+
+Android
+  Settings -> Security -> Encryption & credentials ->
+  Install a certificate -> CA certificate -> ${written}
+
+  Caveat: Apps that ignore user-installed CAs (most native apps
+  on Android 7+) will still reject *.x.home.arpa. This is an
+  Android security policy, not a homelab issue.
+EOF

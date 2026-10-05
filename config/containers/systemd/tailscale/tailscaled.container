@@ -1,0 +1,26 @@
+[Unit]
+Description=Tailscale node agent
+After=network-online.target
+Wants=network-online.target
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+ContainerName=tailscaled
+Image=docker.io/tailscale/tailscale:stable
+AutoUpdate=registry
+Volume=/var/lib/tailscale:/var/lib/tailscale
+Volume=/dev/net/tun:/dev/net/tun
+Network=host
+AddCapability=NET_ADMIN
+AddCapability=SYS_MODULE
+Environment="TS_HOSTNAME=coreos"
+Environment="TS_EXTRA_ARGS=--advertise-routes=192.168.1.0/24 --accept-routes"
+Secret="tailscale-authkey,type=env,target=TS_AUTHKEY"
