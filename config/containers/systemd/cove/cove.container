@@ -49,6 +49,7 @@ Volume=cove-config.volume:/config:U
 Volume=cove-generated.volume:/generated:U
 Volume=cove-backups.volume:/backups:U
 Volume=cove-cache.volume:/cache:U
+Volume=stash-generated.volume:/stash-generated:ro
 
 # Value must be a full Npgsql connection string whose password matches the
 # cove-db-password secret, e.g.
