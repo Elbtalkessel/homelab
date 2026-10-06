@@ -1,0 +1,61 @@
+[Unit]
+Description=Litellm Proxy
+Requires=litellm-db.service
+After=litellm-db.service
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+# litellm-database variant bundles the Prisma toolchain so DB schema migrations
+# run smoothly on startup -- preferred when running alongside an external
+# Postgres, which is our setup. For a Postgres-less deployment, the bare
+# ghcr.io/berriai/litellm:main-stable image would work instead.
+Image=ghcr.io/berriai/litellm-database:main-stable
+ContainerName=litellm
+AutoUpdate=registry
+
+# config: bind-mounted from the synced config dir.
+# The default entrypoint looks for /app/config.yaml, so mounting at that path
+# picks it up automatically without an --config flag.
+Volume=%h/.config/containers/litellm/config.yaml:/app/config.yaml:ro,Z
+
+# Persist model definitions + virtual keys into Postgres. Without this, model
+# additions and per-user keys are stored in memory and lost on restart, defeating
+# the point of having the DB.
+Environment=STORE_MODEL_IN_DB=true
+
+# Required secrets -- create them on the host before starting the service:
+#
+#   printf 'sk-...master-key...' | podman secret create litellm-master-key -
+#   printf 'postgresql://litellm:PASSWORD@litellm-db:5432/litellm' \
+#     | podman secret create litellm-db-url -
+#   printf 'sk-...salt-key...'   | podman secret create litellm-salt-key -
+#
+# The PASSWORD embedded in litellm-db-url MUST match the one used when
+# `podman secret create litellm-db-password` was issued (see litellm-db.container).
+#
+# LITELLM_SALT_KEY encrypts provider credentials that the Admin UI stores in
+# the DB. Per the litellm docs it CANNOT be rotated after you add models --
+# a rotation makes every stored provider credential unreadable. Generate a
+# strong random value once, back it up alongside the master key, and never
+# change it.
+Secret="litellm-master-key,type=env,target=LITELLM_MASTER_KEY"
+Secret="litellm-db-url,type=env,target=DATABASE_URL"
+Secret="litellm-salt-key,type=env,target=LITELLM_SALT_KEY"
+
+# Health endpoint exposed by the litellm image.
+HealthCmd=CMD-SHELL curl -fsS http://localhost:4000/health/liveliness || exit 1
+HealthStartPeriod=20s
+HealthStartupTimeout=5s
+
+# public.network for Traefik routing on ai.x.home.arpa, litellm.network for
+# reaching the DB container.
+Network=public.network
+Network=litellm.network

@@ -117,6 +117,7 @@ This project uses [devenv](https://devenv.sh/).
 - [i2p](./config/containers/systemd/i2p) _WIP_
 - [immich](./config/containers/systemd/immich)
 - [invidious](./config/containers/systemd/invidious)
+- [litellm](./config/containers/systemd/litellm)
 - [plex](./config/containers/systemd/plex)
 - [postfix](./config/containers/systemd/postfix) _WIP_
 - [romm](./config/containers/systemd/romm)

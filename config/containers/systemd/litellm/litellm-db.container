@@ -1,0 +1,26 @@
+[Unit]
+Description=Litellm Database
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/library/postgres:16-alpine
+AutoUpdate=registry
+ContainerName=litellm-db
+Volume=litellm-db.volume:/var/lib/postgresql/data
+Environment=POSTGRES_DB=litellm
+Environment=POSTGRES_USER=litellm
+# Symmetric with the DATABASE_URL secret injected into litellm.container --
+# the password embedded in the URL has to match this one. Create the secret on
+# the host first:
+#
+#   printf 'PASSWORD' | podman secret create litellm-db-password -
+Secret="litellm-db-password,type=env,target=POSTGRES_PASSWORD"
+HealthCmd=CMD-SHELL pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+Notify=healthy
+# DB stays on the internal network -- it must NOT be reachable from Traefik.
+Network=litellm.network

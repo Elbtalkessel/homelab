@@ -27,6 +27,11 @@
         "Enable" true
         "Port" 4153)
 
+	(dict "Service" "litellm"
+        "Enable" true
+        "Alias" "ai"
+        "Port" 4000)
+
 	(dict "Service" "vaultwarden"
         "Enable" true
         "Alias" "vault"
