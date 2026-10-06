@@ -31,6 +31,8 @@ Volume=%h/.config/containers/litellm/config.yaml:/app/config.yaml:ro,Z
 # the point of having the DB.
 Environment=STORE_MODEL_IN_DB=true
 
+# Before doing anything set config/containers/litellm/config.yaml:general_settings.disable_env_credential_login to false
+#
 # Required secrets -- create them on the host before starting the service:
 #
 #   printf 'sk-...master-key...' | podman secret create litellm-master-key -

@@ -3,7 +3,6 @@
 #
 # Sensitive credentials MUST be referenced via os.environ/<NAME> so they come from
 # the host environment / podman secrets, never hardcoded here.
-
 model_list:
   # Placeholder so the proxy has at least one model at startup. Add real models
   # below, or load them from a separate file via `model_list:` + litellm --config.
@@ -11,19 +10,17 @@ model_list:
     litellm_params:
       model: openai/gpt-4o-mini
       api_key: os.environ/OPENAI_API_KEY
-
   - model_name: claude-3-5-sonnet
     litellm_params:
       model: anthropic/claude-3-5-sonnet-latest
       api_key: os.environ/ANTHROPIC_API_KEY
-
 # General settings are read by the proxy at startup.
 # master_key is intentionally NOT set here -- it is injected by the container as
 # the LITELLM_MASTER_KEY env var (sourced from the litellm-master-key secret).
 general_settings:
   # Disable telemetry by default; flip to true if you want to help upstream.
   telemetry: false
-
+  disable_env_credential_login: true
 litellm_settings:
   # Forward unknown params to the upstream provider instead of erroring.
   drop_params: true
