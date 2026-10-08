@@ -113,7 +113,8 @@
         "Port" 8080)
 
   (dict "Service" "litellm"
-        "Enable" false
+				"Alias" "ai"
+        "Enable" true
         "Port" 4000)
 }}
 

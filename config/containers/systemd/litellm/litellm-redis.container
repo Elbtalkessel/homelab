@@ -1,0 +1,7 @@
+[Container]
+Image=docker.io/library/redis:7
+ContainerName=litellm-redis
+PublishPort=6379:6379
+Volume=litellm-redis-data.volume:/data
+Exec=redis-server --appendonly yes
+Network=litellm.network

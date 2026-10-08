@@ -1,6 +1,6 @@
 [Unit]
 Description=Litellm Proxy
-Requires=litellm-db.service
+Requires=litellm-db.service litellm-redis.service
 After=litellm-db.service
 StartLimitBurst=5
 StartLimitIntervalSec=120
@@ -25,11 +25,14 @@ AutoUpdate=registry
 # The default entrypoint looks for /app/config.yaml, so mounting at that path
 # picks it up automatically without an --config flag.
 Volume=%h/.config/containers/litellm/config.yaml:/app/config.yaml:ro,Z
+Volume=%h/.config/containers/litellm/providers.json:/app/.venv/lib/python3.13/site-packages/litellm/llms/openai_like/providers.json:ro,Z
+Exec=--config /app/config.yaml --port 4000
 
 # Persist model definitions + virtual keys into Postgres. Without this, model
 # additions and per-user keys are stored in memory and lost on restart, defeating
 # the point of having the DB.
 Environment=STORE_MODEL_IN_DB=true
+Environment=PLACEHOLDER_API_KEY=-
 
 # Before doing anything set config/containers/litellm/config.yaml:general_settings.disable_env_credential_login to false
 #
@@ -51,6 +54,7 @@ Environment=STORE_MODEL_IN_DB=true
 Secret="litellm-master-key,type=env,target=LITELLM_MASTER_KEY"
 Secret="litellm-db-url,type=env,target=DATABASE_URL"
 Secret="litellm-salt-key,type=env,target=LITELLM_SALT_KEY"
+Secret="litellm-opencode-key,type=env,target=OPENCODE_GO_API_KEY"
 
 # Health endpoint exposed by the litellm image.
 HealthCmd=CMD-SHELL curl -fsS http://localhost:4000/health/liveliness || exit 1
