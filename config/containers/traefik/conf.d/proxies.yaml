@@ -5,25 +5,25 @@
         "Enable" true
         "Port" 8083)
 
-	(dict "Service" "filebot"
+  (dict "Service" "filebot"
         "Enable" false
         "Port" 5452)
 
-	(dict "Service" "gitea"
+  (dict "Service" "gitea"
         "Enable" true
         "Port" 3000)
 
-	(dict "Service" "immich"
+  (dict "Service" "immich"
         "Enable" true
-				"Alias" "photos"
+        "Alias" "photos"
         "Port" 2283)
 
-	(dict "Service" "stash"
+  (dict "Service" "stash"
         "AllowHomeCors" true
         "Enable" true
         "Port" 9999)
 
-	(dict "Service" "stash-ai"
+  (dict "Service" "stash-ai"
         "Enable" true
         "Port" 4153)
 
@@ -37,27 +37,27 @@
         "Alias" "vault"
         "Port" 80)
 
-	(dict "Service" "lidarr"
+  (dict "Service" "lidarr"
         "Enable" true
         "Port" 8686)
 
-	(dict "Service" "seerr"
+  (dict "Service" "seerr"
         "Enable" true
         "Port" 5055)
 
-	(dict "Service" "prowlarr"
+  (dict "Service" "prowlarr"
         "Enable" true
         "Port" 9696)
 
-	(dict "Service" "radarr"
+  (dict "Service" "radarr"
         "Enable" true
         "Port" 7878)
 
-	(dict "Service" "sonarr"
+  (dict "Service" "sonarr"
         "Enable" true
         "Port" 8989)
 
-	(dict "Service" "torrent"
+  (dict "Service" "torrent"
         "Enable" true
         "Port" 8080)
 
@@ -78,29 +78,29 @@
         "Enable" true
         "Port" 80)
 
-	(dict "Service" "i2pd"
-				"Enable" false
-				"Port" 7070)
+  (dict "Service" "i2pd"
+        "Enable" false
+        "Port" 7070)
 
-	(dict "Service" "romm"
-				"Enable" true
-	      "Port" 8080)
+  (dict "Service" "romm"
+        "Enable" true
+        "Port" 8080)
 
-	(dict "Service" "roundcube"
-				"Enable" true
-				"Alias" "mail"
-	      "Port" 8080)
+  (dict "Service" "roundcube"
+        "Enable" true
+        "Alias" "mail"
+        "Port" 8080)
 
-	(dict "Service" "stasharr"
-				"Enable" true
-	      "Port" 3000)
+  (dict "Service" "stasharr"
+        "Enable" true
+        "Port" 3000)
 
-	(dict "Service" "uptime-kuma"
-				"Alias" "status"
-				"Enable" true
-	      "Port" 3001)
+  (dict "Service" "uptime-kuma"
+        "Alias" "status"
+        "Enable" true
+        "Port" 3001)
 
-	(dict "Service" "binge"
+  (dict "Service" "binge"
         "AllowHomeCors" true
         "Enable" true
         "Port" 7878)
