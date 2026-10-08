@@ -100,7 +100,7 @@
         "Enable" true
         "Port" 7878)
 
-	(dict "Service" "cove"
+  (dict "Service" "cove"
         "Enable" true
         "Port" 5073)
 
