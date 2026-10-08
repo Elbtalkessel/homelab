@@ -1,0 +1,27 @@
+[Unit]
+Description=VoidLLM Gateway
+After=network-online.target
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=ghcr.io/voidmind-io/voidllm:latest
+ContainerName=voidllm
+AutoUpdate=registry
+
+# Data persistence
+Volume=voidllm-data.volume:/app/data
+
+# Bind to all interfaces inside container
+Secret="voidllm-encryption-key,type=env,target=VOIDLLM_ENCRYPTION_KEY"
+Secret="voidllm-admin-key,type=env,target=VOIDLLM_ADMIN_KEY"
+
+# Expose to Traefik via public network
+Network=public.network

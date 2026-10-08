@@ -27,12 +27,7 @@
         "Enable" true
         "Port" 4153)
 
-	(dict "Service" "litellm"
-        "Enable" true
-        "Alias" "ai"
-        "Port" 4000)
-
-	(dict "Service" "vaultwarden"
+  (dict "Service" "vaultwarden"
         "Enable" true
         "Alias" "vault"
         "Port" 80)
@@ -108,6 +103,18 @@
 	(dict "Service" "cove"
         "Enable" true
         "Port" 5073)
+
+  (dict "Service" "bifrost"
+        "Enable" false
+        "Port" 8080)
+
+  (dict "Service" "voidllm"
+        "Enable" false
+        "Port" 8080)
+
+  (dict "Service" "litellm"
+        "Enable" false
+        "Port" 4000)
 }}
 
 http:

@@ -1,0 +1,5 @@
+[Unit]
+Description=Bifrost data volume
+
+[Volume]
+VolumeName=bifrost_data

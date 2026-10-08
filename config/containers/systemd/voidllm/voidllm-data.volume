@@ -1,0 +1,5 @@
+[Unit]
+Description=VoidLLM data volume
+
+[Volume]
+VolumeName=voidllm-data
