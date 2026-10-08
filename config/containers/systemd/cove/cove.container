@@ -31,25 +31,24 @@ Environment=COVE__Postgres__Managed=false
 # password embedded in the connection string, and systemd does not expand
 # variables inside Environment=, so the whole string is delivered by the
 # cove-db-connection-string secret instead.
-Environment=COVE_HOME=/config
-Environment=COVE__GeneratedPath=/generated
-Environment=COVE__CachePath=/cache
-Environment=COVE__BackupPath=/backups
+Environment=COVE_HOME=/cove/config
+Environment=COVE__GeneratedPath=/cove/generated
+Environment=COVE__CachePath=/cove/cache
+Environment=COVE__BackupPath=/cove/backups
 
 # vol
 Volume=/etc/localtime:/etc/localtime:ro
-Volume=/var/mnt/s1/xyz:/data/legacy:ro
-Volume=/var/mnt/s1/media:/data/library:ro
+Volume=/var/mnt/s1/xyz:/data/legacy
+Volume=/var/mnt/s1/media:/data/library
 # :U chowns each volume to the container's primary user (%U). Podman seeds a fresh
 # named volume with the image's VOLUME ownership, which is cove:cove (1000:1000),
 # so without this the app volumes stay owned by 1000 and Cove cannot write
 # /config once User=%U:%U remaps the process. Not applied to the NFS binds --
 # those must never be chowned from the container.
-Volume=cove-config.volume:/config:U
-Volume=cove-generated.volume:/generated:U
-Volume=cove-backups.volume:/backups:U
-Volume=cove-cache.volume:/cache:U
-Volume=stash-generated.volume:/stash-generated:ro
+Volume=cove-config.volume:/cove/config:U
+Volume=cove-generated.volume:/cove/generated:U
+Volume=cove-backups.volume:/cove/backups:U
+Volume=cove-cache.volume:/cove/cache:U
 
 # Value must be a full Npgsql connection string whose password matches the
 # cove-db-password secret, e.g.
