@@ -1,0 +1,14 @@
+[Unit]
+Description=Redis server for New API
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/library/redis:latest
+ContainerName=new-api-redis
+AutoUpdate=registry
+Network=new-api.network

@@ -1,0 +1,7 @@
+[Unit]
+Description=New API Network
+
+[Network]
+# Other options
+NetworkName=new-api
+

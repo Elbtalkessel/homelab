@@ -1,0 +1,53 @@
+# Based on https://github.com/QuantumNous/new-api/blob/main/docker-compose.yml
+# more options available there.
+[Unit]
+Description=An AI gateway for models, applications, and agents
+Requires=new-api-postgres.service new-api-redis.service
+After=new-api-postgres.service new-api-redis.service
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/calciumion/new-api:latest
+ContainerName=new-api
+AutoUpdate=registry
+Exec=--log-dir /data/log
+
+Volume=new-api-data.volume:/data
+
+Environment="TZ=Etc/UTC"
+Environment="ERROR_LOG_ENABLED=true"
+Environment="BATCH_UPDATE_ENABLED=true"
+Environment="NODE_NAME=coreos"
+# Required in Secure mode: comma-separated exact HTTPS origins, without paths or wildcards; leave unset for local HTTP
+Environment="SESSION_COOKIE_TRUSTED_URL=https://ai-gateway.x.home.arpa"
+# Trusted reverse-proxy IPs/CIDRs, or none; explicitly configure for your network
+# Environment="TRUSTED_PROXIES="
+# Set to true for an HTTPS console; enables Secure refresh cookies and strict refresh/logout origin checks
+Environment="SESSION_COOKIE_SECURE=true"
+Environment="REDIS_CONN_STRING=redis://new-api-redis:6379"
+
+# Persistent authentication secret; all nodes must use the same value
+Secret=new-api-session-secret,type=env,target=SESSION_SECRET
+# Main database connection; unset uses SQLite
+Secret=new-api-postgres-dsn,type=env,target=SQL_DSN
+# Redis connection string
+#Secret=new-api-redis-dsn,type=env,target=REDIS_CONN_STRING
+# Defaults to SESSION_SECRET; nodes sharing Redis must use the same effective value
+Secret=new-api-crypto-secret,type=env,target=CRYPTO_SECRET
+
+HealthCmd=CMD-SHELL wget -q -O - http://localhost:3000/api/status | grep -o '\"success\":\\s*true' || exit 1
+HealthStartPeriod=30s
+HealthInterval=30s
+HealthStartupTimeout=5s
+HealthRetries=3
+
+Network=new-api.network
+Network=public.network

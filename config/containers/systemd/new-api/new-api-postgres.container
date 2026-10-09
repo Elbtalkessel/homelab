@@ -1,0 +1,20 @@
+[Unit]
+Description=New API Database
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=docker.io/library/postgres:15
+AutoUpdate=registry
+ContainerName=new-api-postgres
+Volume=new-api-postgres.volume:/var/lib/postgresql/data
+Environment="POSTGRES_DB=new-api"
+Environment="POSTGRES_USER=root"
+Secret="new-api-postgres-password,type=env,target=POSTGRES_PASSWORD"
+HealthCmd=CMD-SHELL pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+Notify=healthy
+Network=new-api.network

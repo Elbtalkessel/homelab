@@ -113,9 +113,14 @@
         "Port" 8080)
 
   (dict "Service" "litellm"
-				"Alias" "ai"
+		"Alias" "ai"
         "Enable" true
         "Port" 4000)
+
+  (dict "Service" "new-api"
+  		"Alias" "ai-gateway"
+  		"Enable" true
+  		"Port" 3000)
 }}
 
 http:
