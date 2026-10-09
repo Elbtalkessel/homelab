@@ -4,11 +4,11 @@
     "api_key_env": "OPENCODE_GO_API_KEY"
   },
   "omen.lan": {
-    "base_url": "http://192.168.1.122/v1",
+    "base_url": "http://192.168.1.122:8080/v1",
     "api_key_env": "PLACEHOLDER_API_KEY"
   },
   "bazzite.lan": {
-    "base_url": "http://192.168.1.177/v1",
+    "base_url": "http://192.168.1.177:8080/v1",
     "api_key_env": "PLACEHOLDER_API_KEY"
   }
 }
