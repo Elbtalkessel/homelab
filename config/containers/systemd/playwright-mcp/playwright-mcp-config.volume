@@ -1,0 +1,5 @@
+[Unit]
+Description=Playwright MCP generated config storage
+
+[Volume]
+VolumeName=playwright-mcp-config

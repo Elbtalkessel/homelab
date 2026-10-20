@@ -1,6 +1,11 @@
 [Unit]
 Description=Playwright MCP server
 After=network-online.target
+After=step-ca.service
+After=step-ca-certs-volume.service
+After=playwright-mcp-config-volume.service
+Requires=step-ca-certs-volume.service
+Requires=playwright-mcp-config-volume.service
 StartLimitBurst=5
 StartLimitIntervalSec=120
 
@@ -10,6 +15,14 @@ WantedBy=default.target
 [Service]
 Restart=on-abnormal
 RestartSec=15
+# Generate a Chromium launch-options config that pins the Homelab CA SPKI.
+# This runs before the main container starts and writes into playwright-mcp-config.volume.
+ExecStartPre=/usr/bin/podman run --rm --replace --name playwright-mcp-config-gen \
+  -v certs:/certs:ro,z \
+  -v playwright-mcp-config:/config \
+  -v %h/.config/containers/systemd/playwright-mcp/playwright-mcp-config.sh:/generate-config.sh:ro,z \
+  docker.io/library/alpine:latest \
+  /bin/sh /generate-config.sh
 
 [Container]
 Image=mcr.microsoft.com/playwright/mcp:v0.0.83
@@ -26,6 +39,10 @@ Environment="PLAYWRIGHT_MCP_CAPS=vision"
 
 # Allow the Traefik router's Host header; the service is exposed as playwright-mcp.x.home.arpa.
 Environment="PLAYWRIGHT_MCP_ALLOWED_HOSTS=playwright-mcp.x.home.arpa"
+
+# Load the generated config that tells Chromium to accept the Homelab CA.
+Environment="PLAYWRIGHT_MCP_CONFIG=/config/playwright-mcp.json"
+Volume=playwright-mcp-config.volume:/config:ro,z
 
 # The MCP server has no dedicated health endpoint; any HTTP response on /mcp means it is up.
 # Use node for the probe because the image is node-based and curl is not guaranteed.
