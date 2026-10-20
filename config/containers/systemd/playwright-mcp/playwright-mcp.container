@@ -1,0 +1,38 @@
+[Unit]
+Description=Playwright MCP server
+After=network-online.target
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=on-abnormal
+RestartSec=15
+
+[Container]
+Image=mcr.microsoft.com/playwright/mcp:v0.0.83
+ContainerName=playwright-mcp
+AutoUpdate=registry
+
+# The image's entrypoint already supplies --headless --browser chromium --no-sandbox.
+# Enable the Streamable HTTP transport and bind on all interfaces so Traefik can reach it.
+Environment="PLAYWRIGHT_MCP_PORT=3000"
+Environment="PLAYWRIGHT_MCP_HOST=0.0.0.0"
+
+# Enable the vision capability (coordinate-aware mouse tools + viewport screenshots).
+Environment="PLAYWRIGHT_MCP_CAPS=vision"
+
+# Allow the Traefik router's Host header; the service is exposed as playwright-mcp.x.home.arpa.
+Environment="PLAYWRIGHT_MCP_ALLOWED_HOSTS=playwright-mcp.x.home.arpa"
+
+# The MCP server has no dedicated health endpoint; any HTTP response on /mcp means it is up.
+# Use node for the probe because the image is node-based and curl is not guaranteed.
+HealthCmd=CMD-SHELL node -e "require('http').get('http://127.0.0.1:3000/mcp', () => process.exit(0)).on('error', () => process.exit(1))"
+HealthStartPeriod=20s
+HealthStartupTimeout=5s
+HealthInterval=30s
+HealthRetries=3
+
+Network=public.network

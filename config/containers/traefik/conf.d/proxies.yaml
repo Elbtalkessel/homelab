@@ -121,6 +121,10 @@
   		"Alias" "ai-gateway"
   		"Enable" true
   		"Port" 3000)
+
+  (dict "Service" "playwright-mcp"
+        "Enable" true
+        "Port" 3000)
 }}
 
 http:
