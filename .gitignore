@@ -15,3 +15,4 @@ devenv.local.nix
 *.ign
 *.iso
 *.txt
+.omo/
