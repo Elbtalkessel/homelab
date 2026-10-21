@@ -22,7 +22,7 @@
     };
 
     syncup = {
-      enable = true;
+      enable = false;
       name = "Sending changes to remote host";
       entry = "syncup";
       pass_filenames = false;

@@ -1,0 +1,361 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# rm-service: stop a Podman Quadlet service and its directory-local dependencies,
+# with optional removal of service-owned volumes and secrets.
+#
+# Safety rules:
+#   - Only stops containers that have a .container file in the service directory.
+#     External Requires= dependencies are ignored.
+#   - Containers are stopped in reverse-dependency order (main first, leaves last).
+#   - Volumes/secrets are only removed when explicitly requested and only if they
+#     are declared in the service's Quadlet files AND match the service or a
+#     container-name prefix. This guards against deleting shared resources that
+#     were accidentally prefixed incorrectly.
+#
+# Usage:
+#   ./rm-service <service> [--volumes] [--secrets] [--dry-run]
+#
+# Remote execution:
+#   If SSH_HOST is set (optionally with SSH_USER), commands run on that host via
+#   ssh, exactly like bin/syncup. Otherwise commands run locally.
+
+usage() {
+  cat <<'EOF'
+Usage: rm-service <service> [OPTIONS]
+
+Stop a Quadlet service and its directory-local dependencies.
+
+Options:
+  --volumes   Remove declared volumes that belong to the service
+  --secrets   Remove declared secrets that belong to the service
+  --dry-run   Print actions without executing them
+  -h, --help  Show this help message
+
+Examples:
+  rm-service litellm
+  rm-service litellm --volumes --secrets
+  rm-service litellm --dry-run --volumes --secrets
+EOF
+}
+
+error() {
+  echo "Error: $1" >&2
+  exit 1
+}
+
+# Execute a command locally or on the configured remote host.
+run_remote() {
+  if [ -n "${SSH_HOST:-}" ]; then
+    ssh "${SSH_USER:+${SSH_USER}@}${SSH_HOST}" -- "$@"
+  else
+    "$@"
+  fi
+}
+
+# Parse Requires= from a .container file, returning dependency service basenames
+# (without .service suffix).
+parse_requires() {
+  local file="$1"
+  awk -F= '
+    /^[[:space:]]*Requires[[:space:]]*=/ {
+      val = $0
+      sub(/^[[:space:]]*Requires[[:space:]]*=[[:space:]]*/, "", val)
+      gsub(/\.service/, "", val)
+      print val
+    }
+  ' "$file"
+}
+
+# Parse Volume= lines from a .container file and return named-volume references.
+# A reference is either a .volume file (resolved later) or an inline named volume.
+parse_container_volumes() {
+  local file="$1"
+  awk -F= '
+    /^[[:space:]]*Volume[[:space:]]*=/ {
+      val = $0
+      sub(/^[[:space:]]*Volume[[:space:]]*=[[:space:]]*/, "", val)
+      split(val, parts, ":")
+      ref = parts[1]
+      if (length(ref) > 0 && ref !~ /\//) {
+        print ref
+      }
+    }
+  ' "$file"
+}
+
+# Return the effective volume name for a .volume file.
+parse_volume_name() {
+  local file="$1"
+  local name
+  name=$(awk -F= '/^[[:space:]]*VolumeName[[:space:]]*=/ {print $2}' "$file" | head -n1)
+  if [ -z "$name" ]; then
+    name=$(basename "$file" .volume)
+  fi
+  printf '%s' "$name"
+}
+
+# Parse Secret= lines and return secret names.
+parse_secrets() {
+  local file="$1"
+  awk -F= '
+    /^[[:space:]]*Secret[[:space:]]*=/ {
+      val = $0
+      sub(/^[[:space:]]*Secret[[:space:]]*=[[:space:]]*/, "", val)
+      gsub(/^"/, "", val)
+      gsub(/"$/, "", val)
+      split(val, parts, ",")
+      print parts[1]
+    }
+  ' "$file"
+}
+
+# Check whether a resource name belongs to the service or one of its containers.
+# Accepts exact match or prefix followed by "-" or "_".
+belongs_to_service() {
+  local name="$1"
+  shift
+  local prefixes=("$SERVICE" "$@")
+  local prefix
+  for prefix in "${prefixes[@]}"; do
+    if [ "$name" = "$prefix" ] || [[ "$name" == "$prefix"-* ]] || [[ "$name" == "$prefix"_* ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Topological sort of the dependency graph: for every Requires=A B edge,
+# the dependent service is emitted before its dependencies.
+topological_sort() {
+  local -n nodes_ref=$1
+  local -n deps_ref=$2
+  local -a order=()
+  local -A indegree=()
+  local node dep
+
+  for node in "${nodes_ref[@]}"; do
+    indegree["$node"]=0
+  done
+
+  for node in "${nodes_ref[@]}"; do
+    for dep in ${deps_ref[$node]:-}; do
+      indegree["$dep"]=$((${indegree[$dep]:-0} + 1))
+    done
+  done
+
+  local -a queue=()
+  for node in "${nodes_ref[@]}"; do
+    if [ "${indegree[$node]}" -eq 0 ]; then
+      queue+=("$node")
+    fi
+  done
+
+  while [ ${#queue[@]} -gt 0 ]; do
+    node=${queue[0]}
+    queue=("${queue[@]:1}")
+    order+=("$node")
+    for dep in ${deps_ref[$node]:-}; do
+      indegree["$dep"]=$((${indegree[$dep]} - 1))
+      if [ "${indegree[$dep]}" -eq 0 ]; then
+        queue+=("$dep")
+      fi
+    done
+  done
+
+  if [ ${#order[@]} -ne ${#nodes_ref[@]} ]; then
+    error "cycle detected in container dependencies for service '${SERVICE}'"
+  fi
+
+  printf '%s\n' "${order[@]}"
+}
+
+# ---------- argument parsing ----------
+
+SERVICE=""
+REMOVE_VOLUMES=false
+REMOVE_SECRETS=false
+DRY_RUN=false
+
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --volumes)
+      REMOVE_VOLUMES=true
+      ;;
+    --secrets)
+      REMOVE_SECRETS=true
+      ;;
+    --dry-run)
+      DRY_RUN=true
+      ;;
+    -*)
+      error "unknown option: $arg"
+      ;;
+    *)
+      if [ -n "$SERVICE" ]; then
+        error "only one service name may be specified"
+      fi
+      SERVICE="$arg"
+      ;;
+  esac
+done
+
+if [ -z "$SERVICE" ]; then
+  usage >&2
+  exit 1
+fi
+
+# ---------- locate service quadlets ----------
+
+if [ -n "${DEVENV_ROOT:-}" ]; then
+  REPO_ROOT="$DEVENV_ROOT"
+else
+  REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || error "not inside a git repository and DEVENV_ROOT is unset"
+fi
+
+SERVICE_DIR="${REPO_ROOT}/config/containers/systemd/${SERVICE}"
+if [ ! -d "$SERVICE_DIR" ]; then
+  error "no systemd directory for service '${SERVICE}' at ${SERVICE_DIR}"
+fi
+
+# Collect container names first so we can ignore external Requires= targets.
+declare -a CONTAINERS=()
+for file in "$SERVICE_DIR"/*.container; do
+  [ -e "$file" ] || continue
+  CONTAINERS+=("$(basename "$file" .container)")
+done
+
+if [ ${#CONTAINERS[@]} -eq 0 ]; then
+  error "no .container files found for service '${SERVICE}'"
+fi
+
+# Build dependency graph limited to containers within this service directory.
+declare -A DEPS=()
+for file in "$SERVICE_DIR"/*.container; do
+  [ -e "$file" ] || continue
+  svc=$(basename "$file" .container)
+  svc_deps=""
+  for dep in $(parse_requires "$file"); do
+    if [[ " ${CONTAINERS[*]} " == *" ${dep} "* ]]; then
+      svc_deps="${svc_deps}${dep} "
+    fi
+  done
+  # Normalize whitespace.
+  DEPS["$svc"]=$(echo "$svc_deps" | xargs 2>/dev/null || true)
+done
+
+# Compute stop order.
+mapfile -t STOP_ORDER < <(topological_sort CONTAINERS DEPS)
+
+# ---------- stop containers ----------
+
+echo "Stopping service '${SERVICE}' (order: ${STOP_ORDER[*]})"
+
+for svc in "${STOP_ORDER[@]}"; do
+  unit="${svc}.service"
+  if [ "$DRY_RUN" = true ]; then
+    echo "[dry-run] systemctl --user stop ${unit}"
+    continue
+  fi
+  if run_remote systemctl --user cat "$unit" >/dev/null 2>&1; then
+    echo "  stopping ${unit}"
+    run_remote systemctl --user stop "$unit" || error "failed to stop ${unit}"
+  else
+    echo "  ${unit} not found on host, skipping"
+  fi
+done
+
+# ---------- remove volumes ----------
+
+if [ "$REMOVE_VOLUMES" = true ]; then
+  echo "Removing volumes for service '${SERVICE}'"
+
+  declare -A VOLUMES=()
+
+  # Volumes declared explicitly in .volume files.
+  for file in "$SERVICE_DIR"/*.volume; do
+    [ -e "$file" ] || continue
+    vol=$(parse_volume_name "$file")
+    VOLUMES["$vol"]=1
+  done
+
+  # Named-volume references inside .container files.
+  for file in "$SERVICE_DIR"/*.container; do
+    [ -e "$file" ] || continue
+    for ref in $(parse_container_volumes "$file"); do
+      if [[ "$ref" == *.volume ]]; then
+        volume_file="$SERVICE_DIR/$ref"
+        if [ -f "$volume_file" ]; then
+          vol=$(parse_volume_name "$volume_file")
+          VOLUMES["$vol"]=1
+        else
+          echo "  warning: referenced volume file not found: ${volume_file}" >&2
+        fi
+      else
+        VOLUMES["$ref"]=1
+      fi
+    done
+  done
+
+  if [ ${#VOLUMES[@]} -eq 0 ]; then
+    echo "  no volumes declared"
+  else
+    for vol in "${!VOLUMES[@]}"; do
+      if ! belongs_to_service "$vol" "${CONTAINERS[@]}"; then
+        echo "  skipping '${vol}' (does not match service or container prefix)"
+        continue
+      fi
+      if [ "$DRY_RUN" = true ]; then
+        echo "[dry-run] podman volume rm ${vol}"
+        continue
+      fi
+      if run_remote podman volume exists "$vol" 2>/dev/null; then
+        echo "  removing volume '${vol}'"
+        run_remote podman volume rm "$vol" || error "failed to remove volume '${vol}'"
+      else
+        echo "  volume '${vol}' not found, skipping"
+      fi
+    done
+  fi
+fi
+
+# ---------- remove secrets ----------
+
+if [ "$REMOVE_SECRETS" = true ]; then
+  echo "Removing secrets for service '${SERVICE}'"
+
+  declare -A SECRETS=()
+  for file in "$SERVICE_DIR"/*.container; do
+    [ -e "$file" ] || continue
+    for secret in $(parse_secrets "$file"); do
+      SECRETS["$secret"]=1
+    done
+  done
+
+  if [ ${#SECRETS[@]} -eq 0 ]; then
+    echo "  no secrets declared"
+  else
+    for secret in "${!SECRETS[@]}"; do
+      if ! belongs_to_service "$secret" "${CONTAINERS[@]}"; then
+        echo "  skipping '${secret}' (does not match service or container prefix)"
+        continue
+      fi
+      if [ "$DRY_RUN" = true ]; then
+        echo "[dry-run] podman secret rm ${secret}"
+        continue
+      fi
+      if run_remote podman secret ls --format '{{.Name}}' 2>/dev/null | grep -qx "$secret"; then
+        echo "  removing secret '${secret}'"
+        run_remote podman secret rm "$secret" || error "failed to remove secret '${secret}'"
+      else
+        echo "  secret '${secret}' not found, skipping"
+      fi
+    done
+  fi
+fi
+
+echo "Done."
