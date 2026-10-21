@@ -32,8 +32,8 @@ experimental:
   fastProxy: {}
   plugins:
     sablier:
-      modulename: github.com/sablierapp/sablier
-      version: v1.10.1
+      moduleName: "github.com/sablierapp/sablier"
+      version: "v1.10.1"
 
 certificatesResolvers:
   ca:

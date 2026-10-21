@@ -10,11 +10,11 @@ RestartSec=15
 
 [Container]
 ContainerName=sablier
-Image=docker.io/acouvreur/sablier:1.3.0
+Image=docker.io/sablierapp/sablier:1.18.0
 PodmanArgs=--privileged
-Exec=start --provider.name=docker --sessions.expiration-interval=15m --sessions.default-duration=1h
+Exec=start --provider.name=podman --sessions.expiration-interval=15m --sessions.default-duration=1h
 AutoUpdate=registry
-Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock:z
+Volume=/run/user/%U/podman/podman.sock:/run/podman/podman.sock:z
 Network=public.network
 
 [Install]

@@ -1,9 +1,2 @@
 http.socket
 https.socket
-dovecot/
-postfix/
-flaresolverr/
-i2p/
-roundcube/
-sablier/
-searxng/

@@ -3,6 +3,7 @@
 {{$proxies := list
   (dict "Service" "calibre"
         "Enable" true
+        "SuspendAfter" "15m"
         "Port" 8083)
 
   (dict "Service" "filebot"
@@ -20,11 +21,11 @@
 
   (dict "Service" "stash"
         "AllowHomeCors" true
-        "Enable" true
+        "Enable" false
         "Port" 9999)
 
   (dict "Service" "stash-ai"
-        "Enable" true
+        "Enable" false
         "Port" 4153)
 
   (dict "Service" "vaultwarden"
@@ -34,10 +35,12 @@
 
   (dict "Service" "lidarr"
         "Enable" true
+        "SuspendAfter" "15m"
         "Port" 8686)
 
   (dict "Service" "seerr"
         "Enable" true
+        "SuspendAfter" "15m"
         "Port" 5055)
 
   (dict "Service" "prowlarr"
@@ -59,6 +62,7 @@
   (dict "Service" "invidious"
         "Enable" true
         "Alias" "yt"
+        "SuspendAfter" "15m"
         "Port" 3000)
 
   (dict "Service" "notifiarr"
@@ -66,11 +70,12 @@
         "Port" 5454)
 
   (dict "Service" "adguard"
-        "Enable" true
+        "Enable" false
         "Port" 80)
 
   (dict "Service" "whoami"
         "Enable" true
+        "SuspendAfter" "15m"
         "Port" 80)
 
   (dict "Service" "i2pd"
@@ -79,25 +84,26 @@
 
   (dict "Service" "romm"
         "Enable" true
+        "SuspendAfter" "15m"
         "Port" 8080)
 
   (dict "Service" "roundcube"
-        "Enable" true
+        "Enable" false
         "Alias" "mail"
         "Port" 8080)
 
   (dict "Service" "stasharr"
-        "Enable" true
+        "Enable" false
         "Port" 3000)
 
   (dict "Service" "uptime-kuma"
         "Alias" "status"
-        "Enable" true
+        "Enable" false
         "Port" 3001)
 
   (dict "Service" "binge"
         "AllowHomeCors" true
-        "Enable" true
+        "Enable" false
         "Port" 7878)
 
   (dict "Service" "cove"
@@ -114,7 +120,7 @@
 
   (dict "Service" "litellm"
 		"Alias" "ai"
-        "Enable" true
+        "Enable" false
         "Port" 4000)
 
   (dict "Service" "new-api"
