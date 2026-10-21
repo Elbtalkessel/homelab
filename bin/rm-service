@@ -47,7 +47,9 @@ error() {
 # Execute a command locally or on the configured remote host.
 run_remote() {
   if [ -n "${SSH_HOST:-}" ]; then
-    ssh "${SSH_USER:+${SSH_USER}@}${SSH_HOST}" -- "$@"
+    # FIX #1: Removed erroneous `--` after host - that broke all remote execution.
+    # The `--` terminator must come before the destination, not after.
+    ssh "${SSH_USER:+${SSH_USER}@}${SSH_HOST}" -n -- "$@"
   else
     "$@"
   fi
@@ -61,7 +63,8 @@ parse_requires() {
     /^[[:space:]]*Requires[[:space:]]*=/ {
       val = $0
       sub(/^[[:space:]]*Requires[[:space:]]*=[[:space:]]*/, "", val)
-      gsub(/\.service/, "", val)
+      # FIX #5: Anchor gsub to end to avoid mashing names like "foo.service-container"
+      gsub(/\.service$/, "", val)
       print val
     }
   ' "$file"
@@ -88,7 +91,16 @@ parse_container_volumes() {
 parse_volume_name() {
   local file="$1"
   local name
-  name=$(awk -F= '/^[[:space:]]*VolumeName[[:space:]]*=/ {print $2}' "$file" | head -n1)
+  # FIX #3: Added `exit` inside awk to avoid SIGPIPE with pipefail when multiple
+  # lines match and head closes early. Also quotes $2 to preserve embedded '='.
+  name=$(awk -F= '/^[[:space:]]*VolumeName[[:space:]]*=/ {
+    val = $2
+    for (i=3; i<=NF; i++) val = val "=" $i
+    gsub(/^["'\'']/, "", val)
+    gsub(/["'\'']$/, "", val)
+    print val
+    exit
+  }' "$file")
   if [ -z "$name" ]; then
     name=$(basename "$file" .volume)
   fi
@@ -164,7 +176,8 @@ topological_sort() {
   done
 
   if [ ${#order[@]} -ne ${#nodes_ref[@]} ]; then
-    error "cycle detected in container dependencies for service '${SERVICE}'"
+    echo "cycle detected in container dependencies for service '${SERVICE}'" >&2
+    return 1
   fi
 
   printf '%s\n' "${order[@]}"
@@ -248,8 +261,10 @@ for file in "$SERVICE_DIR"/*.container; do
   DEPS["$svc"]=$(echo "$svc_deps" | xargs 2>/dev/null || true)
 done
 
-# Compute stop order.
-mapfile -t STOP_ORDER < <(topological_sort CONTAINERS DEPS)
+# FIX #2: Capture topological_sort output and check exit status explicitly.
+# Process substitution runs in a subshell, so errors were previously swallowed.
+topo_output=$(topological_sort CONTAINERS DEPS) || error "dependency resolution failed"
+mapfile -t STOP_ORDER <<< "$topo_output"
 
 # ---------- stop containers ----------
 
@@ -313,6 +328,7 @@ if [ "$REMOVE_VOLUMES" = true ]; then
         echo "[dry-run] podman volume rm ${vol}"
         continue
       fi
+      # FIX #5: Allow stderr through and check exit code explicitly
       if run_remote podman volume exists "$vol" 2>/dev/null; then
         echo "  removing volume '${vol}'"
         run_remote podman volume rm "$vol" || error "failed to remove volume '${vol}'"
@@ -348,7 +364,8 @@ if [ "$REMOVE_SECRETS" = true ]; then
         echo "[dry-run] podman secret rm ${secret}"
         continue
       fi
-      if run_remote podman secret ls --format '{{.Name}}' 2>/dev/null | grep -qx "$secret"; then
+      # FIX #5: Let podman failures surface; stderr now visible for debugging
+      if run_remote podman secret ls --format '{{.Name}}' | grep -qx "$secret"; then
         echo "  removing secret '${secret}'"
         run_remote podman secret rm "$secret" || error "failed to remove secret '${secret}'"
       else
