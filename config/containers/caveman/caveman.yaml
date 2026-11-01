@@ -1,0 +1,11 @@
+# Caveman proxy configuration. Secrets stay in podman secrets (env), never here.
+# `compress` is the savings mode; `record` is the byte-safe pass-through.
+mode: compress
+
+# DeepSeek is an OpenAI-compatible upstream; mount it so requests are forwarded
+# to api.deepseek.com instead of api.openai.com. The key is read from the
+# DEEPSEEK_API_KEY environment variable, injected from a podman secret.
+compat:
+  deepseek:
+    base_url: https://api.deepseek.com
+    api_key_env: DEEPSEEK_API_KEY

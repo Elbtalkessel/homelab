@@ -1,0 +1,6 @@
+[Unit]
+Description=Caveman Proxy Data
+
+[Volume]
+# Other options
+VolumeName=caveman-data
