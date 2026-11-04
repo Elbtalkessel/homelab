@@ -139,7 +139,3 @@ This project uses [devenv](https://devenv.sh/).
 - [traefik](./config/containers/systemd/traefik)
 - [vaultwarden](./config/containers/systemd/vaultwarden)
 - [whoami](./config/containers/systemd/whoami)
-
----
-
-_For detailed instructions on how AI agents should interact with this repository, see [AGENTS.md](AGENTS.md)._
