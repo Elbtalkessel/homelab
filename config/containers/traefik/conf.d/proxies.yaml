@@ -84,7 +84,6 @@
 
   (dict "Service" "romm"
         "Enable" true
-        "SuspendAfter" "15m"
         "Port" 8080)
 
   (dict "Service" "roundcube"
