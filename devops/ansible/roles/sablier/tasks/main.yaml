@@ -1,0 +1,57 @@
+- name: Create Sablier directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ sablier_user }}"
+    group: "{{ sablier_user }}"
+    mode: "0755"
+  loop:
+    - "{{ sablier_install_dir }}"
+    - "{{ sablier_config_dir }}"
+    - "{{ sablier_systemd_dir }}"
+- name: Download Sablier release
+  ansible.builtin.get_url:
+    url: >-
+      https://github.com/sablierapp/sablier/releases/download/v{{ sablier_version }}/sablier-{{ sablier_version }}-linux-{{ sablier_arch }}.tar.gz
+    dest: "/var/tmp/sablier-{{ sablier_version }}-linux-{{ sablier_arch }}.tar.gz"
+    mode: "0644"
+- name: Extract Sablier binary
+  ansible.builtin.unarchive:
+    src: "/var/tmp/sablier-{{ sablier_version }}-linux-{{ sablier_arch }}.tar.gz"
+    dest: "{{ sablier_install_dir }}"
+    remote_src: true
+    include:
+      - sablier
+    creates: "{{ sablier_install_dir }}/sablier"
+- name: Set Sablier binary permissions
+  ansible.builtin.file:
+    path: "{{ sablier_install_dir }}/sablier"
+    owner: "{{ sablier_user }}"
+    group: "{{ sablier_user }}"
+    mode: "0755"
+- name: Deploy Sablier configuration
+  ansible.builtin.template:
+    src: sablier.yaml.j2
+    dest: "{{ sablier_config_dir }}/sablier.yaml"
+    owner: "{{ sablier_user }}"
+    group: "{{ sablier_user }}"
+    mode: "0644"
+  notify: Restart Sablier
+- name: Deploy Sablier user service
+  ansible.builtin.template:
+    src: sablier.service.j2
+    dest: "{{ sablier_systemd_dir }}/sablier.service"
+    owner: "{{ sablier_user }}"
+    group: "{{ sablier_user }}"
+    mode: "0644"
+  notify: Restart Sablier
+- name: Enable and start Sablier
+  ansible.builtin.systemd_service:
+    name: sablier.service
+    scope: user
+    enabled: true
+    state: started
+    daemon_reload: true
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ sablier_uid }}"
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ sablier_uid }}/bus"

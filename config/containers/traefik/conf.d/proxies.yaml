@@ -45,14 +45,17 @@
 
   (dict "Service" "prowlarr"
         "Enable" true
+        "SuspendAfter" "15m"
         "Port" 9696)
 
   (dict "Service" "radarr"
         "Enable" true
+        "SuspendAfter" "15m"
         "Port" 7878)
 
   (dict "Service" "sonarr"
         "Enable" true
+        "SuspendAfter" "15m"
         "Port" 8989)
 
   (dict "Service" "torrent"
@@ -107,6 +110,7 @@
 
   (dict "Service" "cove"
         "Enable" true
+        "SuspendAfter" "15m"
         "Port" 5073)
 
   (dict "Service" "bifrost"
@@ -118,7 +122,6 @@
         "Port" 8080)
 
   (dict "Service" "litellm"
-		"Alias" "ai"
         "Enable" false
         "Port" 4000)
 
@@ -143,8 +146,6 @@ http:
         accessControlAllowCredentials: true
         accessControlAllowOriginList:
           - "https://omen.home.arpa"
-          - "https://binge.x.home.arpa"
-          - "https://stash.x.home.arpa"
         accessControlAllowMethods:
           - GET
           - POST
@@ -174,9 +175,9 @@ http:
             showDetails: true
             theme: shuffle
           {{end}}
-          sablierUrl: http://sablier:10000
+          sablierUrl: http://host.containers.internal:10000
           sessionDuration: {{.SuspendAfter}}
-          names: {{or .Names .Service}}
+          names: {{printf "%s.service" (or .Names .Service)}}
   {{end}}
   {{end}}
   {{end}}

@@ -1,0 +1,5 @@
+- name: User-level deploy
+  hosts: homelab
+  become: false
+  roles:
+    - roles/sablier

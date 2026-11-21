@@ -1,0 +1,2 @@
+- import_tasks: wakeup-machines.yaml
+  tags: [wakeup-machines]

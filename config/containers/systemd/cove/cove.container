@@ -68,3 +68,6 @@ Network=cove.network
 
 # Intel VAAPI acceleration
 AddDevice=/dev/dri:/dev/dri
+
+[X-Sablier]
+Enable=true

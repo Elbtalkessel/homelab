@@ -33,3 +33,6 @@ Label=traefik.http.routers.whisparr.rule=Host(`whisparr.x.home.arpa`)
 Label=traefik.http.routers.whisparr.entrypoints=websecure
 Label=traefik.http.routers.whisparr.tls.certresolver=ca
 Label=traefik.http.services.whisparr.loadbalancer.server.port=6969
+
+[X-Sablier]
+Enable=true
