@@ -22,8 +22,8 @@ Exec=--configFile=/etc/traefik/traefik.yaml
 Environment="LEGO_CA_CERTIFICATES=/certs/root_ca.crt"
 AutoUpdate=registry
 Volume=/run/user/%U/podman/podman.sock:/var/run/docker.sock:ro,z
-Volume=%h/.config/containers/traefik/conf.d:/etc/traefik/conf.d:ro
-Volume=%h/.config/containers/traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro
+Volume=./etc/conf.d:/etc/traefik/conf.d:ro
+Volume=./etc/traefik.yaml:/etc/traefik/traefik.yaml:ro
 Volume=step-ca-certs.volume:/certs:ro,z
 PublishPort=80:80
 PublishPort=443:443

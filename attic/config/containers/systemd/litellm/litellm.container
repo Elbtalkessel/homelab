@@ -24,8 +24,8 @@ AutoUpdate=registry
 # config: bind-mounted from the synced config dir.
 # The default entrypoint looks for /app/config.yaml, so mounting at that path
 # picks it up automatically without an --config flag.
-Volume=%h/.config/containers/litellm/config.yaml:/app/config.yaml:ro,Z
-Volume=%h/.config/containers/litellm/providers.json:/app/.venv/lib/python3.13/site-packages/litellm/llms/openai_like/providers.json:ro,Z
+Volume=./etc/config.yaml:/app/config.yaml:ro,Z
+Volume=./etc/providers.json:/app/.venv/lib/python3.13/site-packages/litellm/llms/openai_like/providers.json:ro,Z
 Exec=--config /app/config.yaml --port 4000
 
 # Persist model definitions + virtual keys into Postgres. Without this, model

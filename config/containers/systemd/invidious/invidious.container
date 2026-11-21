@@ -20,7 +20,7 @@ Image=quay.io/invidious/invidious:latest
 AutoUpdate=registry
 ContainerName=invidious
 Environment=INVIDIOUS_CONFIG_FILE=/invidious/config.yml
-Volume=%h/.config/containers/invidious/config.yml:/invidious/config.yml
+Volume=./etc/config.yml:/invidious/config.yml
 HealthCmd=CMD-SHELL wget -nv --tries=1 --spider http://127.0.0.1:3000/search || exit 1
 HealthInterval=30s
 HealthStartupTimeout=5s

@@ -7,7 +7,7 @@ Image=docker.io/dovecot/dovecot
 ContainerName=dovecot
 Network=public.network
 PublishPort=143:143
-Volume=%h/.config/containers/mail/dovecot/dovecot.conf:/etc/dovecot/dovecot.conf:ro
+Volume=./etc/dovecot.conf:/etc/dovecot/dovecot.conf:ro
 Volume=mail-data.volume:/var/mail:z
 
 AutoUpdate=registry

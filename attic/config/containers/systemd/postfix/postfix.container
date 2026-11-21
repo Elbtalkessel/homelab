@@ -16,6 +16,5 @@ ContainerName=postfix
 Image=docker.io/debok/postfix
 AutoUpdate=registry
 PublishPort=25:25
-Volume=%h/.config/containers/mail/postfix/main.cf:/etc/postfix/main.cf:ro
+Volume=./etc/main.cf:/etc/postfix/main.cf:ro
 Volume=mail-data.volume:/var/mail:z
-

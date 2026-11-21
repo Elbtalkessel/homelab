@@ -16,5 +16,5 @@ RestartSec=15
 Image=docker.io/searxng/searxng:latest
 ContainerName=searxng
 AutoUpdate=registry
-Volume=%h/.config/containers/searxng/settings.yml:/etc/searxng/settings.yml:ro
+Volume=./etc/settings.yml:/etc/searxng/settings.yml:ro
 Network=public.network

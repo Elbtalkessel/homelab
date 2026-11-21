@@ -34,5 +34,5 @@ HealthOnFailure=kill
 
 Volume=torrent-config.volume:/config
 Volume=/var/mnt/s1/media:/share/Video
-Volume=%h/.config/containers/qbittorrent/usr/local/bin/health-check-and-recover.sh:/usr/local/bin/health-check-and-recover.sh:ro
+Volume=./etc/usr/local/bin/health-check-and-recover.sh:/usr/local/bin/health-check-and-recover.sh:ro
 Network=public.network

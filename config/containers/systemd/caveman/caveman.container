@@ -16,7 +16,7 @@ ContainerName=caveman
 AutoUpdate=registry
 Environment="CAVEMAN_CONFIG=/etc/caveman/caveman.yaml"
 Volume=caveman-data.volume:/data
-Volume=%h/.config/containers/caveman/caveman.yaml:/etc/caveman/caveman.yaml:ro,Z
+Volume=./etc/caveman.yaml:/etc/caveman/caveman.yaml:ro,Z
 Secret=caveman-auth-token,type=env,target=CAVEMAN_AUTH_TOKEN
 Secret=caveman-deepseek-api-key,type=env,target=DEEPSEEK_API_KEY
 Network=public.network

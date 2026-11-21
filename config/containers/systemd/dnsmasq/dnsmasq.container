@@ -14,7 +14,7 @@ RestartSec=15
 Image=docker.io/drpsychick/dnsmasq:latest
 ContainerName=dnsmasq
 AutoUpdate=registry
-Volume=%h/.config/containers/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf:ro,Z
+Volume=./etc/dnsmasq.conf:/etc/dnsmasq.conf:ro,Z
 # Bind it to 192.168.1.130, I've tried to bind it to 0.0.0.0 (by disabling systemd dns stub, see networking.yaml ansible task.
 # Does work, but podman internal name resolution stopped working.
 # Probably ideally is to host DNS in a separate VM, or better set DNS in router config.

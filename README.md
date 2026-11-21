@@ -12,7 +12,6 @@ This repository manages the configuration and deployment of containerized servic
   - **`systemd/`**: Contains Podman Quadlet files (`.container`, `.network`, `.volume`, etc.).
     - Each service has its own subdirectory (e.g., `traefik/`, `plex/`).
     - Exception: `servarr/` contains all \*arr-related applications.
-  - **Top-level directories**: Service-specific configuration files (e.g., `traefik.yaml`, `dnsmasq/`). These are mapped 1:1 to service names where possible.
 - **`devops/`**: Infrastructure automation.
   - **`butane/`**: Configuration for the first boot of the remote host.
   - **`ansible/`**: Post-boot system configuration (Work-In-Progress, used for reference).
