@@ -1,0 +1,19 @@
+---
+provider:
+  name: systemd
+  systemd:
+    user-instance: true
+    unit-patterns:
+{% for pattern in sablier_unit_patterns %}
+      - "{{ pattern }}"
+{% endfor %}
+
+sessions:
+  default-duration: "{{ sablier_default_duration }}"
+  expiration-interval: "{{ sablier_expiration_interval }}"
+
+server:
+  port: {{ sablier_port }}
+
+logging:
+  level: info

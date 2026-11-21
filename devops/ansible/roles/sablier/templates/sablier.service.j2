@@ -1,0 +1,13 @@
+[Unit]
+Description=Sablier
+Documentation=https://sablierapp.dev/providers/systemd/
+After=network.target
+
+[Service]
+Type=simple
+ExecStart={{ sablier_install_dir }}/sablier start --configFile {{ sablier_config_dir }}/sablier.yaml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -23,3 +23,6 @@ Environment=PGID=0
 Environment=DOCKER_MODS=linuxserver/mods:universal-calibre
 Environment=OAUTHLIB_RELAX_TOKEN_SCOPE=1
 Network=public.network
+
+[X-Sablier]
+Enable=true

@@ -174,9 +174,9 @@ http:
             showDetails: true
             theme: shuffle
           {{end}}
-          sablierUrl: http://sablier:10000
+          sablierUrl: http://host.containers.internal:10000
           sessionDuration: {{.SuspendAfter}}
-          names: {{or .Names .Service}}
+          names: {{printf "%s.service" (or .Names .Service)}}
   {{end}}
   {{end}}
   {{end}}
