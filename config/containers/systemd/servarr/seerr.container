@@ -24,3 +24,6 @@ HealthInterval=15s
 HealthStartupTimeout=3s
 HealthRetries=3
 Network=public.network
+
+[X-Sablier]
+Enable=true

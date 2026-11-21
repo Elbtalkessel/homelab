@@ -27,3 +27,6 @@ HealthStartupTimeout=5s
 HealthRetries=2
 Network=public.network
 Network=invidious.network
+
+[X-Sablier]
+Enable=true

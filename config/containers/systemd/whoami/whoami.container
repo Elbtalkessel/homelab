@@ -16,3 +16,6 @@ Image=docker.io/traefik/whoami
 AutoUpdate=registry
 ContainerName=whoami
 Network=public.network
+
+[X-Sablier]
+Enable=true
