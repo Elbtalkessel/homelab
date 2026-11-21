@@ -18,7 +18,7 @@ ContainerName=romm
 AutoUpdate=registry
 
 Volume=/etc/localtime:/etc/localtime:ro
-Volume=romm-resources.volume:/romm/resources 
+Volume=romm-resources.volume:/romm/resources
 Volume=romm-redis.volume:/redis-data
 
 # Your game library. Check https://docs.romm.app/latest/Getting-Started/Folder-Structure/ for more details.
@@ -28,7 +28,7 @@ Volume=/var/mnt/s1/game/library:/romm/library
 Volume=/var/mnt/s1/game/provider/romm/assets:/romm/assets
 
 # (Optional) Path where config.yml is stored
-Volume=/var/mnt/s1/game/provider/romm/config:/romm/config 
+Volume=/var/mnt/s1/game/provider/romm/config:/romm/config
 
 Environment="DB_HOST=romm-db"
 Environment="DB_NAME=romm"
@@ -42,6 +42,7 @@ Environment=PLAYMATCH_API_ENABLED=true
 Environment=HLTB_API_ENABLED=true
 Environment=LAUNCHBOX_API_ENABLED=true
 Environment=ENABLE_SCHEDULED_UPDATE_LAUNCHBOX_METADATA=true
+Environment=STEAM_API_ENABLED=true
 
 Secret="romm-db-password,type=env,target=DB_PASSWD"
 
@@ -63,7 +64,6 @@ Secret="romm-steamgriddb-api-key,type=env,target=STEAMGRIDDB_API_KEY"
 # https://docs.romm.app/4.5.0/Getting-Started/Metadata-Providers/#igdb
 Secret="romm-igdb-client-id,type=env,target=IGDB_CLIENT_ID"
 Secret="romm-igdb-client-secret,type=env,target=IGDB_CLIENT_SECRET"
-
 
 Network=public.network
 Network=romm.network
