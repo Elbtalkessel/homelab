@@ -1,0 +1,45 @@
+---
+dst_containers_dir: "{{ ansible_facts.user_dir }}/.config/containers"
+
+containers:
+  calibre:
+    suspend: true
+  caveman:
+  chtsh:
+    suspend: true
+  cove:
+    suspend: true
+  dnsmasq:
+  gitea:
+  immich:
+  invidious:
+    suspend: true
+  lidarr:
+    suspend: true
+    group: servarr
+  new-api:
+  playwright-mcp:
+  plex:
+  prowlarr:
+    suspend: true
+    group: servarr
+  radarr:
+    suspend: true
+    group: servarr
+  romm:
+    suspend: true
+  seerr:
+    suspend: true
+    group: servarr
+  sonarr:
+    suspend: true
+    group: servarr
+  step-ca:
+  torrent:
+  traefik:
+  vaultwarden:
+  whisparr:
+    suspend: true
+    group: servarr
+  whoami:
+    suspend: true

@@ -6,6 +6,7 @@
   packages = with pkgs; [
     butane
     ansible
+    ansible-lint
   ];
 
   enterShell = ''
@@ -17,15 +18,8 @@
       enable = true;
       name = "Check butane";
       entry = "bu-check";
-      files = "devops/butane/.*\\.(yaml|yml|bu)$";
+      files = "butane/.*\\.(yaml|yml|bu)$";
       pass_filenames = true;
-    };
-
-    syncup = {
-      enable = false;
-      name = "Sending changes to remote host";
-      entry = "syncup";
-      pass_filenames = false;
     };
   };
 }

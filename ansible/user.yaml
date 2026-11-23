@@ -1,0 +1,12 @@
+---
+- name: User-level deploy
+  hosts: homelab
+  become: false
+  roles:
+    - roles/sablier
+    - roles/quadlet
+  vars:
+    # Around 2 second win, doesn't hurt because we don't escalate anyway tho.
+    # I've tried to override ssh options, ansible passes PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey
+    # from which only publickey is valid to me, it doesn't nothing at all.
+    ansible_pipelining: true

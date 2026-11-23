@@ -1,0 +1,14 @@
+---
+sablier_version: "1.18.0"
+sablier_arch: "amd64"
+sablier_user: "{{ ansible_facts.user_id }}"
+sablier_uid: "{{ ansible_facts.user_uid }}"
+sablier_home: "{{ ansible_facts.user_dir }}"
+sablier_install_dir: "{{ sablier_home }}/.local/bin"
+sablier_config_dir: "{{ sablier_home }}/.config/sablier"
+sablier_systemd_dir: "{{ sablier_home }}/.config/systemd/user"
+sablier_port: 10000
+sablier_default_duration: "1h"
+sablier_expiration_interval: "15m"
+sablier_unit_patterns:
+  - "*.service"

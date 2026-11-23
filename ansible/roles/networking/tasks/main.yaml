@@ -1,0 +1,5 @@
+---
+- ansible.builtin.import_tasks: networking.yaml
+  tags: [networking]
+- ansible.builtin.import_tasks: pingme.yaml
+  tags: [test]

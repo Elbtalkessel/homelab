@@ -1,0 +1,80 @@
+---
+- name: Resolve files to sync
+  ansible.builtin.set_fact:
+    quadlet_files: >-
+      {{
+        lookup('community.general.filetree', role_path ~ '/templates/containers', wantlist=true)
+        | selectattr('state', 'eq', 'file')
+        | selectattr('path', 'match', '^((' ~ (containers.keys() | join('|')) ~ ')/|public\.network$)')
+      }}
+
+- name: Collect directories to create
+  ansible.builtin.set_fact:
+    quadlet_directories: "{{ quadlet_files | map(attribute='path') | map('dirname') | unique | reject('eq', '.') | reject('eq', '') | list }}"
+
+- name: Create staging directory
+  ansible.builtin.tempfile:
+    state: directory
+    prefix: quadlet-stage-
+  register: quadlet_tmp_stage
+  delegate_to: localhost
+  changed_when: false
+  check_mode: false # must run and return a real path
+
+- name: Stage and push quadlet tree
+  block:
+    - name: Render quadlet tree
+      ansible.builtin.command:
+        argv:
+          - "{{ ansible_playbook_python }}"
+          - "scripts/render.py"
+        stdin: >-
+          {{
+            {
+               'dest': quadlet_tmp_stage.path,
+               'library_roots': [role_path ~ '/templates/containers'],
+               'files': quadlet_files | map(attribute='path') | list,
+               'opts': {
+                 'block_start_string': '[%',
+                 'block_end_string': '%]',
+                 'variable_start_string': '[[',
+                 'variable_end_string': ']]'
+               },
+               'context': {
+                 'containers': containers,
+               }
+             } | to_json
+          }}
+      delegate_to: localhost
+      check_mode: false
+      changed_when: false
+
+    - name: Push quadlet tree
+      ansible.posix.synchronize:
+        src: "{{ quadlet_tmp_stage.path }}/"
+        dest: "{{ dst_containers_dir }}/systemd/"
+        delete: true
+        recursive: true
+        rsync_opts:
+          - "--checksum"
+          - "--itemize-changes"
+      register: quadlet_push_result
+      changed_when: >-
+        quadlet_push_result.stdout_lines | select('match', '^>f') | list | length > 0
+
+    - ansible.builtin.debug:
+        var: quadlet_push_result.stdout_lines
+
+    - name: Push containers config
+      ansible.builtin.template:
+        src: "containers.conf"
+        dest: "{{ dst_containers_dir }}"
+        mode: "0644"
+
+  always:
+    - name: Remove staging directory
+      ansible.builtin.file:
+        path: "{{ quadlet_tmp_stage.path }}"
+        state: absent
+      delegate_to: localhost
+      changed_when: false

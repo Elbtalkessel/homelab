@@ -1,0 +1,10 @@
+---
+- name: Restart Sablier
+  ansible.builtin.systemd_service:
+    name: sablier.service
+    scope: user
+    state: restarted
+    daemon_reload: true
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ sablier_uid }}"
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ sablier_uid }}/bus"

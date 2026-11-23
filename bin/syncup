@@ -1,16 +1,4 @@
 #!/usr/bin/env bash
 set -e
 
-# Ensure we are in the project root
-if [ -z "$DEVENV_ROOT" ]; then
-    DEVENV_ROOT=$(git rev-parse --show-toplevel)
-fi
-
-SSH_URI="${SSH_USER}@${SSH_HOST}"
-
-echo "Syncing config/containers/ to ${SSH_URI}:~/.config/containers/ ..."
-
-rsync \
-  --del -Parvz \
-  --exclude-from="${DEVENV_ROOT}/.rsyncignore" \
-  "${DEVENV_ROOT}/config/containers/" "${SSH_URI}:~/.config/containers/"
+cd ansible && ansible-playbook -i inventory.yaml user.yaml -t containers

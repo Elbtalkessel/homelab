@@ -4,43 +4,22 @@ Automated homelab management using Podman Quadlets, Fedora CoreOS (Butane), and 
 
 ## Overview
 
-This repository manages the configuration and deployment of containerized services on a remote host (typically Fedora CoreOS). It leverages `devenv` for a consistent development environment and uses a git-hook-based sync mechanism to deploy changes.
+This repository manages the configuration and deployment of containerized services on a remote host using Ansible.
 
 ### Key Components
 
-- **`config/containers/`**: The heart of the configuration.
-  - **`systemd/`**: Contains Podman Quadlet files (`.container`, `.network`, `.volume`, etc.).
-    - Each service has its own subdirectory (e.g., `traefik/`, `plex/`).
-    - Exception: `servarr/` contains all \*arr-related applications.
-- **`devops/`**: Infrastructure automation.
-  - **`butane/`**: Configuration for the first boot of the remote host.
-  - **`ansible/`**: Post-boot system configuration (Work-In-Progress, used for reference).
-- **`devenv.nix`**: Manages development dependencies and helper scripts.
-- **`bin/`**: (Work-In-Progress) Helper scripts and utilities.
+- **`ansible/roles`**: The heart of the configuration.
+  - **`core/`**: Remote host configuration.
+- **`gitea/`**: Gitea-specific remote host configuration.
+- **`networking/`**: Not used at the moment.
+- **`quadlet/`**: The main part, containers running on a remote machine.
+- **`sablier/`**: `quadlet/traefic` dependency, stops unused containers.
+- **`tailscale/`**: Tailscale integration.
+- **`wakeup/`**: Wake-On-Lan another host.
 
-## Deployment Workflow
+Playbooks split onto two parts - for root (`system.yaml`) and user (`user.yaml`).
 
-The project uses a "sync-on-commit" model:
-
-1.  Make changes to configurations or Quadlet units.
-2.  Commit the changes.
-3.  A `pre-commit` hook automatically runs the `syncup` script, which uses `rsync` to push `config/containers/` to `~/.config/containers/` on the remote host.
-
-### Manual Sync
-
-You can manually trigger the sync by running:
-
-```bash
-syncup
-```
-
-_Note: This requires the `SSH_USER` and `SSH_HOST` environment variables to be set (usually via `.env`)._
-
-## Conventions
-
-- **Service Naming**: Quadlet unit names should match their configuration directory names.
-- **Networking**: Shared components (like `public.network`) are defined as standalone units.
-- **Socket Activation**: Currently disabled for Traefik due to ACME validation inconsistencies with Step-CA. See detailed notes in the Technical reference section (if applicable).
+List of enabled services and their configuration can be found in `ansible/roles/quadlet/defaults/main.yaml`
 
 ## Remote access via Tailscale
 
@@ -90,51 +69,3 @@ Tailscale tunnel. Nothing is exposed to the public internet.
 - Off-LAN, internet up: works via Tailscale + step-ca cert.
 - Off-LAN, internet down: unreachable (Tailscale NAT traversal needs
   DERP). This is an accepted limitation.
-
-### Held in reserve
-
-- `yan.kim` is a Namecheap-registered public domain. It is not used yet;
-  it exists as an escape hatch if any service ever needs to be exposed
-  publicly (LE wildcard via DNS-01, no step-ca trust angle).
-
-## Tooling & Dependencies
-
-This project uses [devenv](https://devenv.sh/).
-
-- To enter the development environment: `devenv shell`
-- If you add new tools to `devenv.nix`, the session must be restarted to apply changes.
-
-## Available Services
-
-- [adguard](./config/containers/systemd/adguard)
-- [calibre](./config/containers/systemd/calibre)
-- [chtsh](./config/containers/systemd/chtsh)
-- [cove](./config/containers/systemd/cove)
-- [dnsmasq](./config/containers/systemd/dnsmasq)
-- [dovecot](./config/containers/systemd/dovecot) _WIP_
-- [gitea](./config/containers/systemd/gitea)
-- [i2p](./config/containers/systemd/i2p) _WIP_
-- [immich](./config/containers/systemd/immich)
-- [invidious](./config/containers/systemd/invidious)
-- [litellm](./config/containers/systemd/litellm)
-- [plex](./config/containers/systemd/plex)
-- [postfix](./config/containers/systemd/postfix) _WIP_
-- [romm](./config/containers/systemd/romm)
-- [roundcube](./config/containers/systemd/roundcube) _WIP_
-- [sablier](./config/containers/systemd/sablier)
-- [searxng](./config/containers/systemd/searxng)
-- [flaresolverr](./config/containers/systemd/servarr/flaresolverr)
-- [lidarr](./config/containers/systemd/servarr/lidarr)
-- [prowlarr](./config/containers/systemd/servarr/prowlarr)
-- [radarr](./config/containers/systemd/servarr/radarr)
-- [seerr](./config/containers/systemd/servarr/seerr)
-- [sonarr](./config/containers/systemd/servarr/sonarr)
-- [whisparr](./config/containers/systemd/servarr/whisparr)
-- [stash](./config/containers/systemd/stash)
-- [stasharr](./config/containers/systemd/stasharr)
-- [status](./config/containers/systemd/status)
-- [step-ca](./config/containers/systemd/step-ca)
-- [torrent](./config/containers/systemd/torrent)
-- [traefik](./config/containers/systemd/traefik)
-- [vaultwarden](./config/containers/systemd/vaultwarden)
-- [whoami](./config/containers/systemd/whoami)
