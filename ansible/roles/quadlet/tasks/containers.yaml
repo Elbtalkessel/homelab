@@ -8,10 +8,6 @@
         | selectattr('path', 'match', '^((' ~ (containers.keys() | join('|')) ~ ')/|public\.network$)')
       }}
 
-- name: Collect directories to create
-  ansible.builtin.set_fact:
-    quadlet_directories: "{{ quadlet_files | map(attribute='path') | map('dirname') | unique | reject('eq', '.') | reject('eq', '') | list }}"
-
 - name: Create staging directory
   ansible.builtin.tempfile:
     state: directory
@@ -27,7 +23,7 @@
       ansible.builtin.command:
         argv:
           - "{{ ansible_playbook_python }}"
-          - "scripts/render.py"
+          - "{{ role_path ~ '/../../scripts/render.py' }}"
         stdin: >-
           {{
             {
@@ -60,10 +56,7 @@
           - "--itemize-changes"
       register: quadlet_push_result
       changed_when: >-
-        quadlet_push_result.stdout_lines | select('match', '^>f') | list | length > 0
-
-    - ansible.builtin.debug:
-        var: quadlet_push_result.stdout_lines
+        quadlet_push_result.stdout_lines | select('match', '(^>f|\*deleting)') | list | length > 0
 
     - name: Push containers config
       ansible.builtin.template:

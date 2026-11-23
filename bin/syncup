@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-set -e
-
-cd ansible && ansible-playbook -i inventory.yaml user.yaml -t containers

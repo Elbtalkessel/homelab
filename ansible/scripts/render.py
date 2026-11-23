@@ -9,10 +9,10 @@ Usage:
         stdin: >-
           {{
             {
-               'root': _stage.path,
-               'search_paths': [role_path ~ '/templates/containers'],
-               'files': _quadlets | map(attribute='path') | list,
-               'jinja_opts': {
+               'dest': quadlets_tmp_stage.path,
+               'library_roots': [role_path ~ '/templates/containers'],
+               'files': quadlet_files | map(attribute='path') | list,
+               'opts': {
                  'block_start_string': '[%',
                  'block_end_string': '%]',
                  'variable_start_string': '[[',
