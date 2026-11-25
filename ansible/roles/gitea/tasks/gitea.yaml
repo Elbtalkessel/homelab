@@ -1,36 +1,49 @@
 ---
 # Gitea SSH support
 # More: https://docs.gitea.com/next/installation/install-with-docker#docker-shell-with-authorizedkeyscommand
-- name: Create SSH key pair for {{ git_username }} if missing.
+- name: Create SSH key pair for {{ git_username }}.
   community.crypto.openssh_keypair:
     path: /var/home/{{ git_username }}/.ssh/id_ed25519
     type: ed25519
     regenerate: full_idempotence
     private_key_format: ssh
-- name: Authorize {{ git_username }} to login as {{ default_username }}.
+
+- name: Authorize user to login as {{ default_username }}.
   ansible.builtin.copy:
     dest: /var/home/{{ default_username }}/.ssh/authorized_keys.d/git_id_ed25519.pub
     src: /var/home/{{ git_username }}/.ssh/id_ed25519.pub
     owner: "{{ default_username }}"
     group: "{{ default_username }}"
     mode: "0600"
-- name: Authorize {{ git_username }} to manage {{ default_username }} containers.
+
+- name: Authorize user to manage containers of {{ default_username }}.
   ansible.builtin.copy:
     dest: /var/home/{{ git_username }}/.config/containers/podman-connections.json
     src: podman-connections.json.j2
     owner: git
     group: git
     mode: "0644"
-- name: Setup login shell for {{ git_username }}.
-  ansible.builtin.copy:
-    dest: /var/home/{{ git_username }}/gitea-shell
-    src: gitea-shell.sh.j2
-    mode: "0700"
+
+- name: Set up custom shell for {{ git_username }}.
+  tasks:
+    - name: create shell
+      ansible.builtin.copy:
+        # Must not be in the users directory.
+        dest: /usr/local/bin/gitea-shell
+        src: gitea-shell.sh.j2
+        mode: "0700"
+
+    - name: change user shell
+      user:
+        name: "{{ git_username }}"
+        shell: /usr/local/bin/gitea-shell
+
 - name: SSH rule for the {{ git_username }}.
   ansible.builtin.copy:
     dest: /etc/ssh/sshd_config.d/gitea.conf
     src: gitea.conf.j2
     mode: "0644"
+
 - name: Restart sshd.
   ansible.builtin.service:
     name: sshd

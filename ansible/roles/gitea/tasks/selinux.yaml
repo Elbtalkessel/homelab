@@ -1,0 +1,56 @@
+---
+- name: Install local Podman SSH SELinux policy
+  block:
+    - name: Copy SELinux policy source
+      ansible.builtin.copy:
+        src: podman_ssh_socket.te
+        dest: /var/tmp/podman_ssh_socket.te
+        mode: "0644"
+      register: podman_ssh_policy_source
+
+    - name: Check installed SELinux modules
+      ansible.builtin.command:
+        argv:
+          - semodule
+          - -l
+      register: podman_ssh_installed_modules
+      changed_when: false
+
+    - name: Determine whether policy needs installing
+      ansible.builtin.set_fact:
+        podman_ssh_policy_needs_install: >-
+          {{
+            podman_ssh_policy_source.changed
+            or
+            'podman_ssh_socket' not in
+            podman_ssh_installed_modules.stdout_lines
+          }}
+
+    - name: Compile SELinux policy
+      ansible.builtin.command:
+        argv:
+          - checkmodule
+          - -M
+          - -m
+          - -o
+          - /var/tmp/podman_ssh_socket.mod
+          - /var/tmp/podman_ssh_socket.te
+      when: podman_ssh_policy_needs_install
+
+    - name: Package SELinux policy
+      ansible.builtin.command:
+        argv:
+          - semodule_package
+          - -o
+          - /var/tmp/podman_ssh_socket.pp
+          - -m
+          - /var/tmp/podman_ssh_socket.mod
+      when: podman_ssh_policy_needs_install
+
+    - name: Install SELinux policy module
+      ansible.builtin.command:
+        argv:
+          - semodule
+          - -i
+          - /var/tmp/podman_ssh_socket.pp
+      when: podman_ssh_policy_needs_install

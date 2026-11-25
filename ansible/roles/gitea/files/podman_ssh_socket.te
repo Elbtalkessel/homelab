@@ -1,0 +1,23 @@
+module podman_ssh_socket 1.0;
+
+require {
+    type sshd_session_t;
+    type container_file_t;
+    type container_runtime_exec_t;
+    type session_dbusd_tmp_t;
+
+    class sock_file { getattr open write };
+    class file {
+        execute execute_no_trans map open read
+    };
+}
+
+allow sshd_session_t container_file_t:sock_file {
+    getattr open write
+};
+
+allow sshd_session_t container_runtime_exec_t:file {
+    execute execute_no_trans map open read
+};
+
+allow sshd_session_t session_dbusd_tmp_t:sock_file getattr;

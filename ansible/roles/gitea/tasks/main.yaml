@@ -1,3 +1,8 @@
 ---
-- ansible.builtin.import_tasks: gitea.yaml
+- name: Configure gitea user and sshd.
+  ansible.builtin.import_tasks: gitea.yaml
   tags: [gitea]
+
+- name: Update selinux policies to allow using other users podman.
+  ansible.builtin.import_tasks: selinux.yaml
+  tags: [selinux]
