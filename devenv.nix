@@ -7,6 +7,9 @@
     butane
     ansible
     ansible-lint
+    # quadctl (bin/) is a Python CLI; PyYAML is used to read the defaults file
+    # in flag mode (the JSON mode is stdlib-only).
+    (python3.withPackages (ps: [ ps.pyyaml ]))
   ];
 
   enterShell = ''

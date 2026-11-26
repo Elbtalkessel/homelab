@@ -1,0 +1,527 @@
+#!/usr/bin/env python3
+"""Plan and validate a Podman Quadlet deployment.
+
+Consumes the ``rsync --itemize-changes`` output emitted by the quadlet
+``synchronize`` push and turns it into a restart / start / remove plan that
+Ansible executes after ``systemctl --user daemon-reload``. Also validates that
+an enabled container set has no dangling dependency on a removed quadlet.
+
+Two input shapes are supported (both subcommands take the same pair):
+
+    # 1. a single JSON object on stdin (what the Ansible role sends)
+    printf '%s' '{"library_root": ".../templates/containers",
+                  "containers": {"foo": null, "bar": {"suspend": true}},
+                  "itemize": ">f+++++++++ foo.container"}' | quadctl plan -
+
+    # 2. paths via flags, bare itemize output on stdin
+    printf '>f+++++++++ foo.container' |
+        quadctl -c ansible/roles/quadlet/templates/containers \
+                -d ansible/roles/quadlet/defaults/main.yaml plan -
+
+``validate`` is the pre-sync check: it reads the enabled set and reports any
+enabled quadlet whose dependency (``Requires=``, ``Wants=``, ``Volume=``,
+``Network=``, …) points at a quadlet that exists in the library but is not
+enabled. References to non-quadlet units (``podman.socket``,
+``network-online.target``, …) are out of scope and ignored.
+"""
+
+from __future__ import annotations
+
+import argparse
+import itertools
+import json
+import re
+import sys
+from dataclasses import asdict, dataclass
+from functools import cached_property
+from graphlib import CycleError, TopologicalSorter
+from pathlib import Path
+from typing import Any, Iterable
+
+# ---------------------------------------------------------------------------
+# Quadlet unit naming
+# ---------------------------------------------------------------------------
+
+# File suffixes the podman quadlet generator turns into systemd units.
+QUADLET_SUFFIXES = {".container", ".volume", ".network", ".image", ".pod", ".kube"}
+
+# Map a quadlet file suffix to the generated unit-name suffix. ``.container``
+# and ``.kube`` both generate a bare ``<stem>.service``.
+UNIT_SUFFIX = {
+    ".container": "",
+    ".kube": "",
+    ".volume": "-volume",
+    ".network": "-network",
+    ".image": "-image",
+    ".pod": "-pod",
+}
+
+# ``Network=`` values that are podman built-ins, never quadlet references.
+BUILTIN_NETWORKS = {"host", "none", "bridge", "slirp4netns", "pasta"}
+
+# Unit-name suffixes that only the quadlet generator produces. An explicit
+# ``Requires=foo-volume.service`` still names a quadlet even if that ``.volume``
+# file no longer exists on disk, so a missing volume/network is not silently
+# treated as an out-of-scope external unit.
+QUADLET_UNIT_SUFFIXES = ("-volume.service", "-network.service", "-image.service", "-pod.service")
+
+# Dependency-creating [Unit] directives. Ordering-only directives (After=,
+# Before=, Conflicts=) are deliberately excluded: a missing ordering hint does
+# not break a consumer, a missing Requires=/Wants=/PartOf=/BindsTo= does.
+_DEPENDENCY_KEYS = "Requires|Wants|Requisite|BindsTo|PartOf|Upholds"
+
+RE_DEPENDS_ON = re.compile(
+    rf"^\s*(?:{_DEPENDENCY_KEYS})\s*=\s*(?P<names>.+?)\s*$", re.MULTILINE
+)
+# ``Volume=ref:dest`` and ``Network=ref`` — the ref is the token before the
+# first ``:`` (or whitespace), which is either a quadlet name or an ignored
+# host path / built-in network.
+RE_VOLUME_REF = re.compile(r"^\s*Volume\s*=\s*(?P<ref>[^:\s]+)", re.MULTILINE)
+RE_NETWORK_REF = re.compile(r"^\s*Network\s*=\s*(?P<ref>[^:\s]+)", re.MULTILINE)
+
+
+# ---------------------------------------------------------------------------
+# rsync --itemize-changes parsing
+# ---------------------------------------------------------------------------
+
+_NEW_FILE_FLAGS = "+" * 9  # a brand-new file itemizes as ``>f+++++++++``
+
+
+def parse_itemize(line: str) -> tuple[str, str] | None:
+    """Parse one itemize line into ``(action, path)``.
+
+    Actions: ``added``, ``changed``, ``deleted``. Returns ``None`` for lines
+    that are not a transferred/deleted *file* (directory entries, attribute
+    churn, blank lines).
+    """
+    line = line.rstrip("\n")
+    fields = line.split(None, 1)
+    if not fields:
+        return None
+    token = fields[0]
+    path = fields[1].strip() if len(fields) > 1 else ""
+
+    if token.startswith("*deleting"):
+        return ("deleted", path)
+    if token.startswith(">f"):
+        if not path or path.endswith("/"):
+            return None
+        return ("added" if token[2:] == _NEW_FILE_FLAGS else "changed", path)
+    return None
+
+
+def parse_itemize_lines(lines: Iterable[str]) -> list[tuple[str, str]]:
+    return [parsed for parsed in (parse_itemize(line) for line in lines) if parsed]
+
+
+# ---------------------------------------------------------------------------
+# Quadlet model
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Quadlet:
+    """A single quadlet source file.
+
+    ``path`` is the absolute on-disk location; ``relpath`` is the path
+    relative to the library root (matching the rsync itemize output).
+    """
+
+    path: Path
+    relpath: str
+
+    @cached_property
+    def text(self) -> str:
+        return self.path.read_text()
+
+    @property
+    def kind(self) -> str:
+        """``container``, ``volume``, ``network``, ``image``, ``pod``, ``kube``."""
+        return self.path.suffix.lstrip(".")
+
+    @property
+    def name(self) -> str:
+        """File stem — the quadlet's logical name (``foo`` from ``foo.container``)."""
+        return self.path.stem
+
+    @property
+    def unit(self) -> str:
+        """The systemd unit the generator emits for this quadlet."""
+        return f"{self.name}{UNIT_SUFFIX[self.path.suffix]}.service"
+
+    @cached_property
+    def requires(self) -> frozenset[str]:
+        """Unit names this quadlet depends on.
+
+        Explicit ``[Unit]`` dependencies plus the implicit references the
+        generator rewrites (``Volume=foo.volume`` -> ``foo-volume.service``,
+        ``Network=foo.network`` -> ``foo-network.service``), all normalized to
+        unit names. ``podman.socket`` / ``network-online.target`` / host paths
+        are left as-is so callers can tell them apart from quadlet units.
+        """
+        deps: set[str] = set(
+            itertools.chain.from_iterable(
+                m.group("names").split() for m in RE_DEPENDS_ON.finditer(self.text)
+            )
+        )
+        for m in RE_VOLUME_REF.finditer(self.text):
+            ref = m.group("ref")
+            if ref.endswith(".volume"):
+                deps.add(ref[: -len(".volume")] + "-volume.service")
+        for m in RE_NETWORK_REF.finditer(self.text):
+            ref = m.group("ref")
+            if ref in BUILTIN_NETWORKS:
+                continue
+            if ref.endswith(".network"):
+                deps.add(ref[: -len(".network")] + "-network.service")
+            elif ref.endswith(".container"):
+                deps.add(ref[: -len(".container")] + ".service")
+        return frozenset(deps)
+
+    @cached_property
+    def mounts(self) -> tuple[str, ...]:
+        """Relative source paths this ``.container`` mounts via ``Volume=./...``.
+
+        Resolved against the quadlet's directory, e.g. ``invidious/etc/db/config``
+        for ``Volume=./etc/db/config:...`` in ``invidious/invidious-db.container``.
+        Non-containers return an empty tuple.
+        """
+        if self.kind != "container":
+            return ()
+        base = Path(self.relpath).parent
+        mounts = []
+        for m in RE_VOLUME_REF.finditer(self.text):
+            ref = m.group("ref")
+            if ref.startswith("./") or ref.startswith("../"):
+                mounts.append((base / ref).as_posix())
+        return tuple(mounts)
+
+
+# ---------------------------------------------------------------------------
+# Library index
+# ---------------------------------------------------------------------------
+
+
+class QuadletIndex:
+    """All quadlet files under a library root, indexed by unit and relpath."""
+
+    def __init__(self, quadlets: Iterable[Quadlet]):
+        self._quadlets = list(quadlets)
+        self._by_unit = {q.unit: q for q in self._quadlets}
+        self._by_relpath = {q.relpath: q for q in self._quadlets}
+
+    @classmethod
+    def load(cls, root: Path) -> "QuadletIndex":
+        root = root.resolve()
+        quadlets = []
+        for p in sorted(root.rglob("*")):
+            if p.is_file() and p.suffix in QUADLET_SUFFIXES:
+                quadlets.append(
+                    Quadlet(path=p, relpath=p.relative_to(root).as_posix())
+                )
+        return cls(quadlets)
+
+    def by_unit(self, unit: str) -> Quadlet | None:
+        return self._by_unit.get(unit)
+
+    def by_relpath(self, relpath: str) -> Quadlet | None:
+        return self._by_relpath.get(relpath)
+
+    @property
+    def all_units(self) -> set[str]:
+        return set(self._by_unit)
+
+    def enabled_quadlets(self, enabled_services: set[str]) -> list[Quadlet]:
+        return [
+            q for q in self._quadlets if _is_enabled_quadlet(q, enabled_services)
+        ]
+
+    def dependents(self, unit: str, enabled_services: set[str]) -> set[str]:
+        """Enabled units that directly depend on ``unit`` (reverse closure)."""
+        return {
+            q.unit
+            for q in self.enabled_quadlets(enabled_services)
+            if unit in q.requires
+        }
+
+    def containers_mounting(self, relpath: str, enabled_services: set[str]) -> set[str]:
+        """Units of enabled containers whose ``Volume=./...`` covers ``relpath``."""
+        units: set[str] = set()
+        for q in self.enabled_quadlets(enabled_services):
+            for mount in q.mounts:
+                if relpath == mount or relpath.startswith(mount + "/"):
+                    units.add(q.unit)
+        return units
+
+
+def _is_enabled_quadlet(q: Quadlet, enabled_services: set[str]) -> bool:
+    # ``public.network`` sits at the library root and is always synced.
+    if q.relpath == "public.network":
+        return True
+    top = q.relpath.split("/", 1)[0]
+    return top in enabled_services
+
+
+# ---------------------------------------------------------------------------
+# Plan
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class Plan:
+    restart: list[str]
+    start: list[str]
+    remove: list[str]
+
+    def to_dict(self) -> dict[str, list[str]]:
+        return asdict(self)
+
+
+def build_plan(
+    index: QuadletIndex, enabled_services: set[str], itemize: Iterable[str]
+) -> Plan:
+    restart: set[str] = set()
+    start: set[str] = set()
+    remove: set[str] = set()
+
+    for action, path in parse_itemize_lines(itemize):
+        quadlet = index.by_relpath(path)
+        if quadlet is not None:
+            if action == "deleted":
+                remove.add(quadlet.unit)
+            elif quadlet.kind in ("container", "kube"):
+                (start if action == "added" else restart).add(quadlet.unit)
+            else:
+                # volume / network / image / pod: restart the unit and every
+                # enabled consumer that references it, so they reconnect to the
+                # changed resource. A brand-new one only needs starting.
+                if action == "added":
+                    start.add(quadlet.unit)
+                else:
+                    restart.add(quadlet.unit)
+                    restart |= index.dependents(quadlet.unit, enabled_services)
+        elif action != "deleted":
+            # A non-quadlet file (config under etc/, script, …): restart the
+            # containers that mount it.
+            restart |= index.containers_mounting(path, enabled_services)
+
+    # A unit that is both newly added and a dependent of a changed resource is
+    # not running yet — start it, don't bounce it.
+    restart -= start
+
+    return Plan(
+        restart=sorted(restart),
+        start=sorted(start),
+        remove=_stop_order(index, remove),
+    )
+
+
+def _stop_order(index: QuadletIndex, units: set[str]) -> list[str]:
+    """Order ``units`` so consumers stop before their dependencies.
+
+    Falls back to alphabetical order if the dependency graph is cyclic (which
+    systemd would reject anyway).
+    """
+    if not units:
+        return []
+    sorter: TopologicalSorter[str] = TopologicalSorter()
+    for unit in units:
+        quadlet = index.by_unit(unit)
+        deps = {d for d in quadlet.requires if d in units} if quadlet else set()
+        sorter.add(unit, *deps)
+    try:
+        # static_order() yields dependencies first; reverse for stop order.
+        return list(reversed(list(sorter.static_order())))
+    except CycleError:
+        return sorted(units)
+
+
+# ---------------------------------------------------------------------------
+# Validation
+# ---------------------------------------------------------------------------
+
+
+def validate(index: QuadletIndex, enabled_services: set[str]) -> list[str]:
+    """Return violations: enabled units depending on a non-enabled quadlet.
+
+    A dependency counts as a quadlet reference when it names a unit present in
+    the library (``.container``/``.kube`` -> bare ``.service``) or when it
+    carries a quadlet-only suffix (``-volume.service``, ``-network.service``,
+    …). Anything else — ``podman.socket``, ``network-online.target`` — is an
+    external unit we cannot verify and is ignored.
+    """
+    enabled_units = {q.unit for q in index.enabled_quadlets(enabled_services)}
+    all_units = index.all_units
+    violations: list[str] = []
+    for quadlet in index.enabled_quadlets(enabled_services):
+        for dep in sorted(quadlet.requires):
+            if dep in enabled_units:
+                continue
+            if dep in all_units or dep.endswith(QUADLET_UNIT_SUFFIXES):
+                violations.append(
+                    f"{quadlet.unit} requires {dep} which is not enabled"
+                )
+    return violations
+
+
+# ---------------------------------------------------------------------------
+# Input handling
+# ---------------------------------------------------------------------------
+
+DEFAULT_CONTAINERS_DIR = "ansible/roles/quadlet/templates/containers"
+DEFAULT_DEFAULTS_FILE = "ansible/roles/quadlet/defaults/main.yaml"
+
+
+@dataclass
+class Request:
+    """Resolved input for either subcommand."""
+
+    library_root: Path
+    containers: dict[str, Any]
+
+
+def enabled_services(containers: dict[str, Any]) -> set[str]:
+    """Service names that are enabled, i.e. present and not ``enabled: false``."""
+    return {
+        name
+        for name, cfg in containers.items()
+        if cfg is None or not (isinstance(cfg, dict) and cfg.get("enabled") is False)
+    }
+
+
+def request_from_json(data: dict[str, Any]) -> Request:
+    try:
+        root = Path(data["library_root"])
+        containers = data["containers"]
+    except KeyError as exc:
+        raise ValueError(f"missing JSON key: {exc.args[0]}") from exc
+    if not isinstance(containers, dict):
+        raise ValueError("'containers' must be a mapping")
+    return Request(library_root=root, containers=containers)
+
+
+def request_from_flags(containers_dir: Path, defaults_file: Path) -> Request:
+    try:
+        import yaml  # PyYAML — present wherever ansible is; not stdlib.
+    except ImportError as exc:  # pragma: no cover - environment dependent
+        raise SystemExit(
+            "reading defaults requires PyYAML; pass a JSON request on stdin instead"
+        ) from exc
+
+    data = yaml.safe_load(defaults_file.read_text())
+    if not isinstance(data, dict) or not isinstance(data.get("containers"), dict):
+        raise ValueError(f"no 'containers' mapping in {defaults_file}")
+    return Request(library_root=containers_dir, containers=data["containers"])
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+
+def _read_stdin() -> str:
+    return sys.stdin.read()
+
+
+def _coerce_itemize(value: Any) -> str:
+    """Normalize the ``itemize`` field to a multi-line string.
+
+    Ansible may hand it over as a string (``stdout``) or a list of lines
+    (``stdout_lines``).
+    """
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        return "\n".join(str(line) for line in value)
+    return str(value)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="quadctl",
+        description="Plan and validate a Podman Quadlet deployment.",
+    )
+    parser.add_argument(
+        "-c",
+        "--containers",
+        default=None,
+        metavar="DIR",
+        help=(
+            "quadlet library root (default: %(default)s). Supplying -c/-d "
+            "switches to itemize-on-stdin mode."
+        ),
+    )
+    parser.add_argument(
+        "-d",
+        "--defaults",
+        default=None,
+        metavar="FILE",
+        help=(
+            "defaults file whose 'containers:' key holds the enabled set "
+            "(default: %(default)s)."
+        ),
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    plan_parser = sub.add_parser("plan", help="translate itemize output into a plan")
+    plan_parser.add_argument(
+        "itemize",
+        nargs="?",
+        default="-",
+        metavar="ITEMIZE",
+        help="itemize file, or '-' for stdin (default: -)",
+    )
+    val_parser = sub.add_parser("validate", help="check the enabled set for dangling deps")
+    val_parser.add_argument(
+        "stdin",
+        nargs="?",
+        default="-",
+        metavar="-",
+        help="ignored; accepted for symmetry with 'plan' (default: -)",
+    )
+
+    args = parser.parse_args(argv)
+
+    flag_mode = args.containers is not None or args.defaults is not None
+
+    try:
+        if flag_mode:
+            containers_dir = Path(
+                args.containers if args.containers is not None else DEFAULT_CONTAINERS_DIR
+            )
+            defaults_file = Path(
+                args.defaults if args.defaults is not None else DEFAULT_DEFAULTS_FILE
+            )
+            request = request_from_flags(containers_dir, defaults_file)
+            if args.command == "plan":
+                src = args.itemize
+                itemize = _read_stdin() if src == "-" else Path(src).read_text()
+        else:
+            data = json.loads(_read_stdin())
+            request = request_from_json(data)
+            itemize = (
+                _coerce_itemize(data.get("itemize", ""))
+                if args.command == "plan"
+                else ""
+            )
+    except (json.JSONDecodeError, ValueError, OSError) as exc:
+        parser.error(str(exc))
+        return 2
+
+    index = QuadletIndex.load(request.library_root)
+    services = enabled_services(request.containers)
+
+    if args.command == "plan":
+        plan = build_plan(index, services, itemize.splitlines())
+        print(json.dumps(plan.to_dict(), indent=2))
+        return 0
+
+    violations = validate(index, services)
+    print(json.dumps({"violations": violations}, indent=2))
+    for v in violations:
+        print(v, file=sys.stderr)
+    return 1 if violations else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
