@@ -1,0 +1,15 @@
+[%- from '_sablier.yaml.j2' import sablier_middleware -%]
+http:
+  middlewares:
+[[ sablier_middleware(service) | indent(4, true) ]]
+  services:
+    cove:
+      loadBalancer:
+        servers:
+          - url: http://cove:5073
+  routers:
+    cove:
+      rule: "Host(`cove.x.home.arpa`)"
+      middlewares:
+        - cove-sablier@file
+      service: cove

@@ -1,0 +1,10 @@
+http:
+  services:
+    roundcube:
+      loadBalancer:
+        servers:
+          - url: http://roundcube:8080
+  routers:
+    roundcube:
+      rule: "Host(`mail.x.home.arpa`)"
+      service: roundcube

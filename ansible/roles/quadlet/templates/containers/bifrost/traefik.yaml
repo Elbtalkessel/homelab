@@ -1,0 +1,10 @@
+http:
+  services:
+    bifrost:
+      loadBalancer:
+        servers:
+          - url: http://bifrost:8080
+  routers:
+    bifrost:
+      rule: "Host(`bifrost.x.home.arpa`)"
+      service: bifrost

@@ -1,0 +1,10 @@
+http:
+  services:
+    immich:
+      loadBalancer:
+        servers:
+          - url: http://immich:2283
+  routers:
+    immich:
+      rule: "Host(`photos.x.home.arpa`)"
+      service: immich

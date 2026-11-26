@@ -5,7 +5,18 @@
       {{
         lookup('community.general.filetree', role_path ~ '/templates/containers', wantlist=true)
         | selectattr('state', 'eq', 'file')
-        | selectattr('path', 'match', '^((' ~ (containers.keys() | join('|')) ~ ')/|public\.network$)')
+        | selectattr('path', 'match', '^((' ~ (containers | join('|')) ~ ')/|public\.network$)')
+      }}
+
+- name: Resolve proxied services
+  ansible.builtin.set_fact:
+    quadlet_proxied_services: >-
+      {{
+        quadlet_files
+        | selectattr('path', 'match', '^[^/]+/traefik\.yaml$')
+        | map(attribute='path')
+        | map('replace', '/traefik.yaml', '')
+        | list
       }}
 
 - name: Create staging directory
@@ -41,6 +52,35 @@
                }
              } | to_json
           }}
+      delegate_to: localhost
+      check_mode: false
+      changed_when: false
+
+    - name: Ensure traefik conf.d exists in staging
+      ansible.builtin.file:
+        path: "{{ quadlet_tmp_stage.path }}/traefik/etc/conf.d"
+        state: directory
+        mode: "0755"
+      delegate_to: localhost
+      check_mode: false
+      changed_when: false
+
+    - name: Collect traefik routes into traefik conf.d
+      ansible.builtin.copy:
+        src: "{{ quadlet_tmp_stage.path }}/{{ item }}/traefik.yaml"
+        dest: "{{ quadlet_tmp_stage.path }}/traefik/etc/conf.d/{{ item }}.yaml"
+        remote_src: true
+        mode: "0644"
+      loop: "{{ quadlet_proxied_services }}"
+      delegate_to: localhost
+      check_mode: false
+      changed_when: false
+
+    - name: Remove per-service traefik route files
+      ansible.builtin.file:
+        path: "{{ quadlet_tmp_stage.path }}/{{ item }}/traefik.yaml"
+        state: absent
+      loop: "{{ quadlet_proxied_services }}"
       delegate_to: localhost
       check_mode: false
       changed_when: false

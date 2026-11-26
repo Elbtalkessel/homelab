@@ -1,0 +1,15 @@
+[%- from '_sablier.yaml.j2' import sablier_middleware -%]
+http:
+  middlewares:
+[[ sablier_middleware(service) | indent(4, true) ]]
+  services:
+    lidarr:
+      loadBalancer:
+        servers:
+          - url: http://lidarr:8686
+  routers:
+    lidarr:
+      rule: "Host(`lidarr.x.home.arpa`)"
+      middlewares:
+        - lidarr-sablier@file
+      service: lidarr

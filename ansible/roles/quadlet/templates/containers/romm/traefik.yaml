@@ -1,0 +1,10 @@
+http:
+  services:
+    romm:
+      loadBalancer:
+        servers:
+          - url: http://romm:8080
+  routers:
+    romm:
+      rule: "Host(`romm.x.home.arpa`)"
+      service: romm

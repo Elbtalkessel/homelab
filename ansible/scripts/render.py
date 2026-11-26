@@ -73,7 +73,8 @@ def main() -> int:
     for f in conf.files:
         dest = conf.dest / f
         dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(env.get_template(f).render(conf.context))
+        context = {**conf.context, "service": Path(f).parent.name}
+        dest.write_text(env.get_template(f).render(context))
         os.chmod(dest, 0o644)
     return 0
 

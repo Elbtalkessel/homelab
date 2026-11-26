@@ -1,0 +1,10 @@
+http:
+  services:
+    notifiarr:
+      loadBalancer:
+        servers:
+          - url: http://notifiarr:5454
+  routers:
+    notifiarr:
+      rule: "Host(`notifiarr.x.home.arpa`)"
+      service: notifiarr

@@ -1,0 +1,10 @@
+http:
+  services:
+    voidllm:
+      loadBalancer:
+        servers:
+          - url: http://voidllm:8080
+  routers:
+    voidllm:
+      rule: "Host(`voidllm.x.home.arpa`)"
+      service: voidllm

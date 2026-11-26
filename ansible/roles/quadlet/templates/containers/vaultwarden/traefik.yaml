@@ -1,0 +1,10 @@
+http:
+  services:
+    vaultwarden:
+      loadBalancer:
+        servers:
+          - url: http://vaultwarden:80
+  routers:
+    vaultwarden:
+      rule: "Host(`vault.x.home.arpa`)"
+      service: vaultwarden

@@ -1,0 +1,15 @@
+[%- from '_sablier.yaml.j2' import sablier_middleware -%]
+http:
+  middlewares:
+[[ sablier_middleware(service) | indent(4, true) ]]
+  services:
+    seerr:
+      loadBalancer:
+        servers:
+          - url: http://seerr:5055
+  routers:
+    seerr:
+      rule: "Host(`seerr.x.home.arpa`)"
+      middlewares:
+        - seerr-sablier@file
+      service: seerr

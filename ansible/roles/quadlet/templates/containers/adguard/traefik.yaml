@@ -1,0 +1,10 @@
+http:
+  services:
+    adguard:
+      loadBalancer:
+        servers:
+          - url: http://adguard:80
+  routers:
+    adguard:
+      rule: "Host(`adguard.x.home.arpa`)"
+      service: adguard

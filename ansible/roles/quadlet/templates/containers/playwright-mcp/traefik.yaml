@@ -1,0 +1,10 @@
+http:
+  services:
+    playwright-mcp:
+      loadBalancer:
+        servers:
+          - url: http://playwright-mcp:3000
+  routers:
+    playwright-mcp:
+      rule: "Host(`playwright-mcp.x.home.arpa`)"
+      service: playwright-mcp

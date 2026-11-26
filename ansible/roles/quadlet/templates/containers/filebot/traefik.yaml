@@ -1,0 +1,10 @@
+http:
+  services:
+    filebot:
+      loadBalancer:
+        servers:
+          - url: http://filebot:5452
+  routers:
+    filebot:
+      rule: "Host(`filebot.x.home.arpa`)"
+      service: filebot

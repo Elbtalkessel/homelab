@@ -1,0 +1,10 @@
+http:
+  services:
+    litellm:
+      loadBalancer:
+        servers:
+          - url: http://litellm:4000
+  routers:
+    litellm:
+      rule: "Host(`litellm.x.home.arpa`)"
+      service: litellm

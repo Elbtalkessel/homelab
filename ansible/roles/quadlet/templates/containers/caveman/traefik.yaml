@@ -1,0 +1,10 @@
+http:
+  services:
+    caveman:
+      loadBalancer:
+        servers:
+          - url: http://caveman:8787
+  routers:
+    caveman:
+      rule: "Host(`caveman.x.home.arpa`)"
+      service: caveman

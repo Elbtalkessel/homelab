@@ -1,0 +1,10 @@
+http:
+  services:
+    torrent:
+      loadBalancer:
+        servers:
+          - url: http://torrent:8080
+  routers:
+    torrent:
+      rule: "Host(`torrent.x.home.arpa`)"
+      service: torrent

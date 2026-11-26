@@ -1,0 +1,18 @@
+[% macro sablier_middleware(service, blocking=false) -%]
+[[ service ]]-sablier:
+  plugin:
+    sablier:
+[%- if blocking %]
+      blocking:
+        defaultTimeout: 10s
+[%- else %]
+      dynamic:
+        displayName: [[ service ]]
+        refreshFrequency: 5s
+        showDetails: true
+        theme: shuffle
+[%- endif %]
+      sablierUrl: http://host.containers.internal:10000
+      sessionDuration: 15m
+      names: [[ service ]].service
+[%- endmacro %]

@@ -1,0 +1,15 @@
+[%- from '_sablier.yaml.j2' import sablier_middleware -%]
+http:
+  middlewares:
+[[ sablier_middleware(service) | indent(4, true) ]]
+  services:
+    invidious:
+      loadBalancer:
+        servers:
+          - url: http://invidious:3000
+  routers:
+    invidious:
+      rule: "Host(`yt.x.home.arpa`)"
+      middlewares:
+        - invidious-sablier@file
+      service: invidious

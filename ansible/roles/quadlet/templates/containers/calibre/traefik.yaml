@@ -1,0 +1,15 @@
+[%- from '_sablier.yaml.j2' import sablier_middleware -%]
+http:
+  middlewares:
+[[ sablier_middleware(service) | indent(4, true) ]]
+  services:
+    calibre:
+      loadBalancer:
+        servers:
+          - url: http://calibre:8083
+  routers:
+    calibre:
+      rule: "Host(`calibre.x.home.arpa`)"
+      middlewares:
+        - calibre-sablier@file
+      service: calibre

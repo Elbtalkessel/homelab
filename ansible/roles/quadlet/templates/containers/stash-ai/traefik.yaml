@@ -1,0 +1,10 @@
+http:
+  services:
+    stash-ai:
+      loadBalancer:
+        servers:
+          - url: http://stash-ai:4153
+  routers:
+    stash-ai:
+      rule: "Host(`stash-ai.x.home.arpa`)"
+      service: stash-ai

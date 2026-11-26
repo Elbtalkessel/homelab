@@ -1,0 +1,15 @@
+[%- from '_sablier.yaml.j2' import sablier_middleware -%]
+http:
+  middlewares:
+[[ sablier_middleware(service) | indent(4, true) ]]
+  services:
+    prowlarr:
+      loadBalancer:
+        servers:
+          - url: http://prowlarr:9696
+  routers:
+    prowlarr:
+      rule: "Host(`prowlarr.x.home.arpa`)"
+      middlewares:
+        - prowlarr-sablier@file
+      service: prowlarr

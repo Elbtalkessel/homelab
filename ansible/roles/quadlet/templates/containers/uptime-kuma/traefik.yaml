@@ -1,0 +1,10 @@
+http:
+  services:
+    uptime-kuma:
+      loadBalancer:
+        servers:
+          - url: http://uptime-kuma:3001
+  routers:
+    uptime-kuma:
+      rule: "Host(`status.x.home.arpa`)"
+      service: uptime-kuma

@@ -1,0 +1,10 @@
+http:
+  services:
+    binge:
+      loadBalancer:
+        servers:
+          - url: http://binge:7878
+  routers:
+    binge:
+      rule: "Host(`binge.x.home.arpa`)"
+      service: binge

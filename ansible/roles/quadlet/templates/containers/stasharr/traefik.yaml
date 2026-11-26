@@ -1,0 +1,10 @@
+http:
+  services:
+    stasharr:
+      loadBalancer:
+        servers:
+          - url: http://stasharr:3000
+  routers:
+    stasharr:
+      rule: "Host(`stasharr.x.home.arpa`)"
+      service: stasharr

@@ -1,0 +1,10 @@
+http:
+  services:
+    i2pd:
+      loadBalancer:
+        servers:
+          - url: http://i2pd:7070
+  routers:
+    i2pd:
+      rule: "Host(`i2pd.x.home.arpa`)"
+      service: i2pd

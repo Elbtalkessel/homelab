@@ -1,0 +1,10 @@
+http:
+  services:
+    stash:
+      loadBalancer:
+        servers:
+          - url: http://stash:9999
+  routers:
+    stash:
+      rule: "Host(`stash.x.home.arpa`)"
+      service: stash

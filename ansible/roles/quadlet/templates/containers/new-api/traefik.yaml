@@ -1,0 +1,10 @@
+http:
+  services:
+    new-api:
+      loadBalancer:
+        servers:
+          - url: http://new-api:3000
+  routers:
+    new-api:
+      rule: "Host(`ai-gateway.x.home.arpa`)"
+      service: new-api
